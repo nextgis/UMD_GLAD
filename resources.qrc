@@ -1,0 +1,6 @@
+<RCC>
+  <qresource>
+    <file>icons/umd.png</file>
+    <file>icons/about.png</file>
+  </qresource>
+</RCC>
