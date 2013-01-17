@@ -41,7 +41,7 @@ class AboutDialog(QDialog, Ui_Dialog):
 
     self.btnHelp = self.buttonBox.button(QDialogButtonBox.Help)
 
-    self.lblLogo.setPixmap(QPixmap(":/icons/qtiles.png"))
+    self.lblLogo.setPixmap(QPixmap(":/icons/umd.png"))
     self.lblVersion.setText(self.tr("Version: %1").arg(version()))
     doc = QTextDocument()
     doc.setHtml(self.getAboutText())
@@ -68,10 +68,9 @@ class AboutDialog(QDialog, Ui_Dialog):
     pass
 
   def getAboutText(self):
-    return self.tr("""<p>Generate tiles from QGIS project.</p>
-<p>Plugin generates raster tiles from QGIS project corresponding to <a href="http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames">Slippy Map</a>
-specification. Output tiles can be saved in directory or as zip archive.</p>
-<p><strong>Developers</strong>: Alexander Bruy (<a href="http://nextgis.org">NextGIS</a>), portions of code by Andrew Naplavkov.</p>
-<p><strong>Homepage</strong>: <a href="http://hub.qgis.org/projects/qtiles">http://hub.qgis.org/projects/qtiles</a></p>
-<p>Please report bugs at <a href="http://hub.qgis.org/projects/qtiles/issues">bugtracker</a></p>
+    return self.tr("""<p>Classification for UMD</p>
+<p>Integrates UMD classification algorithms in QGIS.</p>
+<p><strong>Developers</strong>: <a href="http://nextgis.org">NextGIS</a></p>
+<p><strong>Homepage</strong>: <a href="http://hub.qgis.org/projects/qtiles">http://hub.qgis.org/projects/umd</a></p>
+<p>Please report bugs at <a href="http://hub.qgis.org/projects/umd/issues">bugtracker</a></p>
 """)

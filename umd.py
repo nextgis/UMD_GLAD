@@ -96,7 +96,7 @@ class UmdPlugin:
     self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionAbout)
 
   def newProject(self):
-    d = umdprojectdialog.UmdProjectDialog(self.iface)
+    d = umdprojectdialog.UmdProjectDialog(self)
     d.show()
     d.exec_()
 

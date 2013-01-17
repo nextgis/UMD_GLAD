@@ -33,12 +33,16 @@ from qgis.gui import *
 
 from ui_umdprojectdialogbase import Ui_Dialog
 
+import umd_utils as utils
+
 class UmdProjectDialog(QDialog, Ui_Dialog):
-  def __init__(self, iface):
+  def __init__(self, plugin):
     QDialog.__init__(self)
     self.setupUi(self)
 
-    self.iface = iface
+    # plugin is a pointer to UMD plugin instance
+    self.plugin = plugin
+    self.iface = plugin.iface
 
     self.btnOk = self.buttonBox.button(QDialogButtonBox.Ok)
     self.btnClose = self.buttonBox.button(QDialogButtonBox.Close)
@@ -57,8 +61,37 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
   def accept(self):
     # TODO:
     # create project settings file
+
+
     # create shapefiles
-    pass
+    self.createShapes()
+
+    # save project
+    QgsProject.instance().title(self.leProjectName.text())
+    QgsProject.instance().setFileName(QString("%1/%2.qgs").arg(self.leProjectDir.text()).arg(self.leProjectName.text()))
+    QgsProject.instance().write()
+
+    # close dialog if all ok
+    QDialog.accept(self)
+
+  def createShapes(self):
+    symbol = QgsSymbolV2.defaultSymbol(QGis.Polygon)
+    symbol.setColor(Qt.red)
+    renderer = QgsSingleSymbolRendererV2(symbol)
+    fPath = QFileInfo(self.leProjectDir.text() + "/presence.shp").absoluteFilePath()
+    utils.createPolygonShapeFile(fPath, "")
+    layer = QgsVectorLayer(fPath, "presense", "ogr")
+    layer.setRendererV2(renderer)
+    QgsMapLayerRegistry.instance().addMapLayers([layer])
+
+    symbol = QgsSymbolV2.defaultSymbol(QGis.Polygon)
+    symbol.setColor(Qt.blue)
+    renderer = QgsSingleSymbolRendererV2(symbol)
+    fPath = QFileInfo(self.leProjectDir.text() + "/absence.shp").absoluteFilePath()
+    utils.createPolygonShapeFile(fPath, "")
+    layer = QgsVectorLayer(fPath, "absense", "ogr")
+    layer.setRendererV2(renderer)
+    QgsMapLayerRegistry.instance().addMapLayers([layer])
 
   def __selectDirectory(self):
     senderName = self.sender().objectName()
