@@ -43,8 +43,8 @@ class UmdDialog(QDialog, Ui_Dialog):
     self.btnOk = self.buttonBox.button(QDialogButtonBox.Ok)
     self.btnClose = self.buttonBox.button(QDialogButtonBox.Close)
 
-    self.btnSelectProject.clicked.connect(self.__selectProject)
-    self.btnSelectData.clicked.connect(self.__selectData)
+    self.btnSelectProject.clicked.connect(self.__selectDirectory)
+    self.btnSelectData.clicked.connect(self.__selectDirectory)
 
     self.manageGui()
 
@@ -60,7 +60,7 @@ class UmdDialog(QDialog, Ui_Dialog):
     # create shapefiles
     pass
 
-  def __selectProject(self):
+  def __selectDirectory(self):
     senderName = self.sender().objectName()
 
     settings = QSettings("NextGIS", "UMD")
