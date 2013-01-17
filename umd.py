@@ -83,12 +83,10 @@ class UmdPlugin:
 
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionNew)
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionAbout)
-    #self.iface.addToolBarIcon(self.actionNew)
 
     self.toolBar = self.iface.addToolBar(QCoreApplication.translate("UMD", "UMD tools"))
     self.toolBar.setObjectName("UMD tools")
     self.toolBar.addAction(self.actionNew)
-
 
     self.actionNew.triggered.connect(self.newProject)
     self.actionAbout.triggered.connect(self.about)
@@ -96,7 +94,6 @@ class UmdPlugin:
   def unload(self):
     self.iface.unregisterMainWindowAction(self.actionNew)
 
-    #self.iface.removeToolBarIcon(self.actionNew)
     self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionNew)
     self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionAbout)
 

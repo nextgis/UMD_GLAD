@@ -59,10 +59,41 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
     QDialog.reject(self)
 
   def accept(self):
-    # TODO:
+    if self.leProjectName.text().isEmpty():
+      QMessageBox.warning(self,
+                          self.tr("No title"),
+                          self.tr("Project title is not set. Please enter valid project title and try again.")
+                         )
+      return
+
+    if self.leProjectDir.text().isEmpty():
+      QMessageBox.warning(self,
+                          self.tr("No project directory"),
+                          self.tr("Project directory is not set. Please enter valid project directory and try again.")
+                         )
+      return
+
+    if self.leProjectData.text().isEmpty():
+      QMessageBox.warning(self,
+                          self.tr("No project data"),
+                          self.tr("Project data path is not set. Please enter valid path to project data and try again.")
+                         )
+      return
 
     # create project settings file
-    pass
+    f = open(unicode(QFileInfo(self.leProjectDir.text() + "/settings.ini").absoluteFilePath()), "w")
+    f.write("maxtrees=" + unicode(self.spnNumTrees.value()) + "\n")
+    f.write("sampling=" + unicode(self.spnSelectPersent.value()) + "\n")
+    f.write("threads=" + unicode(self.spnTilesThreads.value()) + "\n")
+    f.write("treethreads=" + unicode(self.spnTreesThreads.value()) + "\n")
+    f.write("region=" + unicode("") + "\n")
+    f.write("ulxgrid=" + unicode("") + "\n")
+    f.write("ulygrid=" + unicode("") + "\n")
+    f.write("prolong=" + unicode("") + "\n")
+    f.write("tileside=" + unicode("") + "\n")
+    f.write("tilebuffer=" + unicode("") + "\n")
+    f.write("pixelsize=" + unicode("") + "\n")
+    f.close()
 
     # create shapefiles
     self.createShapes()
