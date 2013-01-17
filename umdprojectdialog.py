@@ -60,8 +60,9 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
 
   def accept(self):
     # TODO:
-    # create project settings file
 
+    # create project settings file
+    pass
 
     # create shapefiles
     self.createShapes()
@@ -71,7 +72,6 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
     QgsProject.instance().setFileName(QString("%1/%2.qgs").arg(self.leProjectDir.text()).arg(self.leProjectName.text()))
     QgsProject.instance().write()
 
-    # close dialog if all ok
     QDialog.accept(self)
 
   def createShapes(self):
