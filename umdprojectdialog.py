@@ -53,6 +53,9 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
     self.manageGui()
 
   def manageGui(self):
+    # TODO:
+    #  - load metrics from file
+    #  - load projections from file
     pass
 
   def reject(self):
@@ -87,12 +90,12 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
     f.write("threads=" + unicode(self.spnTilesThreads.value()) + "\n")
     f.write("treethreads=" + unicode(self.spnTreesThreads.value()) + "\n")
     f.write("region=" + unicode("") + "\n")
-    f.write("ulxgrid=" + unicode("") + "\n")
-    f.write("ulygrid=" + unicode("") + "\n")
+    f.write("ulxgrid=" + unicode(self.spnUlx.value()) + "\n")
+    f.write("ulygrid=" + unicode(self.spnUly.value()) + "\n")
     f.write("prolong=" + unicode("") + "\n")
-    f.write("tileside=" + unicode("") + "\n")
-    f.write("tilebuffer=" + unicode("") + "\n")
-    f.write("pixelsize=" + unicode("") + "\n")
+    f.write("tileside=" + unicode(self.spnTileSide.value()) + "\n")
+    f.write("tilebuffer=" + unicode(self.spnTileBuffer.value()) + "\n")
+    f.write("pixelsize=" + unicode(self.spnPixelSize.value()) + "\n")
     f.close()
 
     # create shapefiles
@@ -129,9 +132,9 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
 
     settings = QSettings("NextGIS", "UMD")
     if senderName == "btnSelectProject":
-        lastDirectory = settings.value("lastProjectDir", ".").toString()
+      lastDirectory = settings.value("lastProjectDir", ".").toString()
     else:
-        lastDirectory = settings.value("lastDataDir", ".").toString()
+      lastDirectory = settings.value("lastDataDir", ".").toString()
 
     outPath = QFileDialog.getExistingDirectory(self,
                                                self.tr("Select directory"),
