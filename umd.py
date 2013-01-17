@@ -30,7 +30,7 @@ from PyQt4.QtGui import *
 
 from qgis.core import *
 
-import umddialog
+import umdprojectdialog
 import aboutdialog
 
 import resources_rc
@@ -74,29 +74,29 @@ class UmdPlugin:
                            QCoreApplication.translate("UMD", "This version of UMD requires at least QGIS version 1.9.0. Plugin will not be enabled."))
       return None
 
-    self.actionRun = QAction(QCoreApplication.translate("UMD", "UMD"), self.iface.mainWindow())
-    self.actionRun.setIcon(QIcon(":/icons/umd.png"))
-    self.actionRun.setWhatsThis("Classification for UMD")
+    self.actionNew = QAction(QCoreApplication.translate("UMD", "Create new project"), self.iface.mainWindow())
+    self.actionNew.setIcon(QIcon(":/icons/umd.png"))
+    self.actionNew.setWhatsThis("Classification for UMD")
     self.actionAbout = QAction(QCoreApplication.translate("UMD", "About UMD..."), self.iface.mainWindow())
     self.actionAbout.setIcon(QIcon(":/icons/about.png"))
     self.actionAbout.setWhatsThis("About UMD")
 
-    self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionRun)
+    self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionNew)
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionAbout)
-    self.iface.addToolBarIcon(self.actionRun)
+    self.iface.addToolBarIcon(self.actionNew)
 
-    self.actionRun.triggered.connect(self.run)
+    self.actionNew.triggered.connect(self.newProject)
     self.actionAbout.triggered.connect(self.about)
 
   def unload(self):
-    self.iface.unregisterMainWindowAction(self.actionRun)
+    self.iface.unregisterMainWindowAction(self.actionNew)
 
-    self.iface.removeToolBarIcon(self.actionRun)
-    self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionRun)
+    self.iface.removeToolBarIcon(self.actionNew)
+    self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionNew)
     self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionAbout)
 
-  def run(self):
-    d = umddialog.UmdDialog(self.iface)
+  def newProject(self):
+    d = umdprojectdialog.UmdProjectDialog(self.iface)
     d.show()
     d.exec_()
 

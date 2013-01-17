@@ -31,9 +31,9 @@ from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
 
-from ui_umddialogbase import Ui_Dialog
+from ui_umdprojectdialogbase import Ui_Dialog
 
-class UmdDialog(QDialog, Ui_Dialog):
+class UmdProjectDialog(QDialog, Ui_Dialog):
   def __init__(self, iface):
     QDialog.__init__(self)
     self.setupUi(self)
