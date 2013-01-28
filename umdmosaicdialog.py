@@ -132,7 +132,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     settings = QSettings("NextGIS", "UMD")
     lastDirectory = settings.value("lastVRTDir", ".").toString()
 
-    outPath = QFileDialog.getSaveFilename(self,
+    outPath = QFileDialog.getSaveFileName(self,
                                           self.tr("Select directory"),
                                           lastDirectory,
                                           self.tr("Virtual raster (*.vrt *.VRT)")
