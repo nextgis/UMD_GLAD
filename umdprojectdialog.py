@@ -29,7 +29,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 from qgis.core import *
-from qgis.gui import *
 
 from ui_umdprojectdialogbase import Ui_Dialog
 
@@ -83,10 +82,10 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
                          )
       return
 
-    # create project settings file
+    # create settings file
     f = open(unicode(QFileInfo(self.leProjectDir.text() + "/settings.ini").absoluteFilePath()), "w")
-    f.write("maxtrees=" + unicode(self.spnNumTrees.value()) + "\n")
-    f.write("sampling=" + unicode(self.spnSelectPersent.value()) + "\n")
+    #f.write("maxtrees=" + unicode(self.spnNumTrees.value()) + "\n")
+    #f.write("sampling=" + unicode(self.spnSelectPersent.value()) + "\n")
     f.write("threads=" + unicode(self.spnTilesThreads.value()) + "\n")
     f.write("treethreads=" + unicode(self.spnTreesThreads.value()) + "\n")
     f.write("region=" + unicode("") + "\n")
@@ -98,7 +97,7 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
     f.write("pixelsize=" + unicode(self.spnPixelSize.value()) + "\n")
     f.close()
 
-    # create shapefiles
+    # create training shapefiles
     self.createShapes()
 
     # save project
@@ -112,18 +111,18 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
     symbol = QgsSymbolV2.defaultSymbol(QGis.Polygon)
     symbol.setColor(Qt.red)
     renderer = QgsSingleSymbolRendererV2(symbol)
-    fPath = QFileInfo(self.leProjectDir.text() + "/presence.shp").absoluteFilePath()
+    fPath = QFileInfo(self.leProjectDir.text() + "/target.shp").absoluteFilePath()
     utils.createPolygonShapeFile(fPath, "")
-    layer = QgsVectorLayer(fPath, "presense", "ogr")
+    layer = QgsVectorLayer(fPath, "target", "ogr")
     layer.setRendererV2(renderer)
     QgsMapLayerRegistry.instance().addMapLayers([layer])
 
     symbol = QgsSymbolV2.defaultSymbol(QGis.Polygon)
     symbol.setColor(Qt.blue)
     renderer = QgsSingleSymbolRendererV2(symbol)
-    fPath = QFileInfo(self.leProjectDir.text() + "/absence.shp").absoluteFilePath()
+    fPath = QFileInfo(self.leProjectDir.text() + "/background.shp").absoluteFilePath()
     utils.createPolygonShapeFile(fPath, "")
-    layer = QgsVectorLayer(fPath, "absense", "ogr")
+    layer = QgsVectorLayer(fPath, "background", "ogr")
     layer.setRendererV2(renderer)
     QgsMapLayerRegistry.instance().addMapLayers([layer])
 
@@ -146,7 +145,7 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
 
     if senderName == "btnSelectProject":
       self.leProjectDir.setText(outPath)
-      settings.setValue("lastProjectDir", QFileInfo(outPath).absoluteDir().absolutePath())
+      settings.setValue("lastProjectDir", QDir(outPath).absolutePath())
     else:
       self.leProjectData.setText(outPath)
-      settings.setValue("lastDataDir", QFileInfo(outPath).absoluteDir().absolutePath())
+      settings.setValue("lastDataDir", QDir(outPath).absolutePath())

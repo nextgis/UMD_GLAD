@@ -31,6 +31,7 @@ from PyQt4.QtGui import *
 from qgis.core import *
 
 import umdprojectdialog
+import umdmosaicdialog
 import aboutdialog
 
 import resources_rc
@@ -77,18 +78,26 @@ class UmdPlugin:
     self.actionNew = QAction(QCoreApplication.translate("UMD", "Create new project"), self.iface.mainWindow())
     self.actionNew.setIcon(QIcon(":/icons/umd.png"))
     self.actionNew.setWhatsThis("Classification for UMD")
+
+    self.actionMosaic = QAction(QCoreApplication.translate("UMD", "Create mosaic"), self.iface.mainWindow())
+    self.actionMosaic.setIcon(QIcon(":/icons/mosaic.png"))
+    self.actionMosaic.setWhatsThis("Create mosaic from tiles")
+
     self.actionAbout = QAction(QCoreApplication.translate("UMD", "About UMD..."), self.iface.mainWindow())
     self.actionAbout.setIcon(QIcon(":/icons/about.png"))
     self.actionAbout.setWhatsThis("About UMD")
 
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionNew)
+    self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionMosaic)
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionAbout)
 
     self.toolBar = self.iface.addToolBar(QCoreApplication.translate("UMD", "UMD tools"))
     self.toolBar.setObjectName("UMD tools")
     self.toolBar.addAction(self.actionNew)
+    self.toolBar.addAction(self.actionMosaic)
 
     self.actionNew.triggered.connect(self.newProject)
+    self.actionMosaic.triggered.connect(self.createMosaic)
     self.actionAbout.triggered.connect(self.about)
 
   def unload(self):
@@ -101,6 +110,11 @@ class UmdPlugin:
 
   def newProject(self):
     d = umdprojectdialog.UmdProjectDialog(self)
+    d.show()
+    d.exec_()
+
+  def createMosaic(self):
+    d = umdmosaicdialog.UmdMosaicDialog(self)
     d.show()
     d.exec_()
 
