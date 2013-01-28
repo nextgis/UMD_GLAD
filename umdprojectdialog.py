@@ -53,8 +53,8 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
 
   def manageGui(self):
     # TODO:
-    #  - load metrics from file
-    #  - load projections from file
+    #  - load metrics from file (seems not necessary?)
+    #  - load projections from file (need projections file!)
     pass
 
   def reject(self):

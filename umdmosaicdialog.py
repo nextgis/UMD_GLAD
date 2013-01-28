@@ -100,10 +100,10 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
         fl.close()
 
       fileCount += 1
+
       # parse file
       r = doc.documentElement()
       bands = r.elementsByTagName("VRTRasterBand")
-      #for b in bands:
       for i in xrange(0, bands.length()):
         b = bands.at(i)
         e = b.toElement()
@@ -124,8 +124,13 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
           metrics[descr] = d
 
     for k, v in metrics.iteritems():
+      if v["count"] != fileCount:
+        continue
+
       item = QStandardItem(k)
       item.setCheckable(True)
+      item.setData(v["type"], QtUserRole + 1)
+      item.setData(v["band"], QtUserRole + 2)
       self.model.appendRow(item)
 
   def selectOutput(self):
@@ -155,5 +160,18 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       return
 
     # check for selected items
+    selectedItemsCount = 0
+    for row in xrange(self.model.rowCount()):
+      for col in xrange(self.model.columnCount()):
+        item = self.model.item(row, col)
+        if item.checkState() == Qt.Checked:
+          selectedItemsCount += 1
+
+    if selectedItemsCount == 0:
+      QMessageBox.warning(self,
+                          self.tr("No metrics")
+                          self.tr("Metrics for mosaic are not selected. Please select at least one metric an try again.")
+                         )
+      return
 
     # write output
