@@ -147,4 +147,13 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     settings.setValue("lastVRTDir", QFileInfo(outPath).absoluteDir().absolutePath())
 
   def accept(self):
-    pass
+    if self.leOutput.text().isEmpty():
+      QMessageBox.warning(self,
+                          self.tr("No output")
+                          self.tr("Output file is not set. Please enter correct filename and try again.")
+                         )
+      return
+
+    # check for selected items
+
+    # write output
