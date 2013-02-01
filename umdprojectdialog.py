@@ -25,6 +25,7 @@
 #
 #******************************************************************************
 
+import os
 import ConfigParser
 
 from PyQt4.QtCore import *
@@ -61,10 +62,12 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
 
   def manageGui(self):
     # TODO:
-    #  - check if there is config file in last project dir and load data from it
     #  - load metrics from file (seems not necessary?)
     #  - load projections from file (need projections file!)
-    pass
+
+    projDir = unicode(self.settings.value("lastProjectDir", ".").toString())
+    if os.path.join(projDir, "settings.ini").exists():
+        pass
 
   def reject(self):
     QDialog.reject(self)
@@ -91,7 +94,19 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
                          )
       return
 
-    # create settings file
+    if QFile().exists():
+      res = QMessageBox.warning(self,
+                                self.tr("Settings exists"),
+                                self.tr("This directory alreasy contains project settings file. Do you want to change it?",
+                                QMessageBox.Yes | QMessageBox.No
+                               )
+
+      if res == QMessageBox.No:
+        return
+
+      # TODO: read existing file and update it accordingly
+
+    # new project, create settings file
     cfg = ConfigParser.SafeConfigParser()
     cfg.add_section("General")
     cfg.set("General", "threads", unicode(self.spnTilesThreads.value()))
@@ -107,10 +122,8 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     with open(unicode(QFileInfo(self.leProjectDir.text() + "/settings.ini").absoluteFilePath()), 'wb') as f:
       cfg.write(f)
 
-    # create training shapefiles
     self.createShapes()
 
-    # save project
     QgsProject.instance().title(self.leProjectName.text())
     QgsProject.instance().setFileName(QString("%1/%2.qgs").arg(self.leProjectDir.text()).arg(self.leProjectName.text()))
     QgsProject.instance().write()
