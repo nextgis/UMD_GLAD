@@ -61,6 +61,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
 
   def manageGui(self):
     # TODO:
+    #  - check if there is config file in last project dir and load data from it
     #  - load metrics from file (seems not necessary?)
     #  - load projections from file (need projections file!)
     pass
