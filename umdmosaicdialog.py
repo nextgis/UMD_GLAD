@@ -129,8 +129,8 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
       item = QStandardItem(k)
       item.setCheckable(True)
-      item.setData(v["type"], QtUserRole + 1)
-      item.setData(v["band"], QtUserRole + 2)
+      item.setData(v["type"], Qt.UserRole + 1)
+      item.setData(v["band"], Qt.UserRole + 2)
       self.model.appendRow(item)
 
   def selectOutput(self):
@@ -154,7 +154,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
   def accept(self):
     if self.leOutput.text().isEmpty():
       QMessageBox.warning(self,
-                          self.tr("No output")
+                          self.tr("No output"),
                           self.tr("Output file is not set. Please enter correct filename and try again.")
                          )
       return
@@ -169,7 +169,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
     if selectedItemsCount == 0:
       QMessageBox.warning(self,
-                          self.tr("No metrics")
+                          self.tr("No metrics"),
                           self.tr("Metrics for mosaic are not selected. Please select at least one metric an try again.")
                          )
       return

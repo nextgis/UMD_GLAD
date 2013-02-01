@@ -22,9 +22,18 @@
     </widget>
    </item>
    <item>
-    <widget class="QTableView" name="lstMetrics">
-     <property name="showGrid">
-      <bool>false</bool>
+    <widget class="QListView" name="lstMetrics">
+     <property name="flow">
+      <enum>QListView::LeftToRight</enum>
+     </property>
+     <property name="isWrapping" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="resizeMode">
+      <enum>QListView::Adjust</enum>
+     </property>
+     <property name="spacing">
+      <number>5</number>
      </property>
     </widget>
    </item>
