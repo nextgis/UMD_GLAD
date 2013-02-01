@@ -25,16 +25,18 @@
 #
 #******************************************************************************
 
+import ConfigParser
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 from qgis.core import *
 
-from ui_umdprojectdialogbase import Ui_Dialog
+from ui_umdprojectdialogbase import Ui_UmdProjectDialog
 
 import umd_utils as utils
 
-class UmdProjectDialog(QDialog, Ui_Dialog):
+class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
   def __init__(self, plugin):
     QDialog.__init__(self)
     self.setupUi(self)
@@ -42,6 +44,12 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
     # plugin is a pointer to UMD plugin instance
     self.plugin = plugin
     self.iface = plugin.iface
+
+    self.settings = QSettings("NextGIS", "UMD")
+    self.gbGeneral.setSettings(self.settings)
+    self.gbProjection.setSettings(self.settings)
+    self.gbProcessing.setSettings(self.settings)
+    self.gbMetrics.setSettings(self.settings)
 
     self.btnOk = self.buttonBox.button(QDialogButtonBox.Ok)
     self.btnClose = self.buttonBox.button(QDialogButtonBox.Close)
@@ -83,19 +91,20 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
       return
 
     # create settings file
-    f = open(unicode(QFileInfo(self.leProjectDir.text() + "/settings.ini").absoluteFilePath()), "w")
-    #f.write("maxtrees=" + unicode(self.spnNumTrees.value()) + "\n")
-    #f.write("sampling=" + unicode(self.spnSelectPersent.value()) + "\n")
-    f.write("threads=" + unicode(self.spnTilesThreads.value()) + "\n")
-    f.write("treethreads=" + unicode(self.spnTreesThreads.value()) + "\n")
-    f.write("region=" + unicode("") + "\n")
-    f.write("ulxgrid=" + unicode(self.spnUlx.value()) + "\n")
-    f.write("ulygrid=" + unicode(self.spnUly.value()) + "\n")
-    f.write("prolong=" + unicode("") + "\n")
-    f.write("tileside=" + unicode(self.spnTileSide.value()) + "\n")
-    f.write("tilebuffer=" + unicode(self.spnTileBuffer.value()) + "\n")
-    f.write("pixelsize=" + unicode(self.spnPixelSize.value()) + "\n")
-    f.close()
+    cfg = ConfigParser.SafeConfigParser()
+    cfg.add_section("General")
+    cfg.set("General", "threads", unicode(self.spnTilesThreads.value()))
+    cfg.set("General", "treethreads", unicode(self.spnTreesThreads.value()))
+    cfg.set("General", "region", unicode(""))
+    cfg.set("General", "ulxgrid", unicode(self.spnUlx.value()))
+    cfg.set("General", "ulygrid", unicode(self.spnUlx.value()))
+    cfg.set("General", "prolong", unicode(""))
+    cfg.set("General", "tileside", unicode(self.spnTileSide.value()))
+    cfg.set("General", "tilebuffer", unicode(self.spnTileBuffer.value()))
+    cfg.set("General", "pixelsize", unicode(self.spnPixelSize.value()))
+
+    with open(unicode(QFileInfo(self.leProjectDir.text() + "/settings.ini").absoluteFilePath()), 'wb') as f:
+      cfg.write(f)
 
     # create training shapefiles
     self.createShapes()
@@ -129,11 +138,10 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
   def __selectDirectory(self):
     senderName = self.sender().objectName()
 
-    settings = QSettings("NextGIS", "UMD")
     if senderName == "btnSelectProject":
-      lastDirectory = settings.value("lastProjectDir", ".").toString()
+      lastDirectory = self.settings.value("lastProjectDir", ".").toString()
     else:
-      lastDirectory = settings.value("lastDataDir", ".").toString()
+      lastDirectory = self.settings.value("lastDataDir", ".").toString()
 
     outPath = QFileDialog.getExistingDirectory(self,
                                                self.tr("Select directory"),
@@ -145,7 +153,7 @@ class UmdProjectDialog(QDialog, Ui_Dialog):
 
     if senderName == "btnSelectProject":
       self.leProjectDir.setText(outPath)
-      settings.setValue("lastProjectDir", QDir(outPath).absolutePath())
+      self.settings.setValue("lastProjectDir", QDir(outPath).absolutePath())
     else:
       self.leProjectData.setText(outPath)
-      settings.setValue("lastDataDir", QDir(outPath).absolutePath())
+      self.settings.setValue("lastDataDir", QDir(outPath).absolutePath())

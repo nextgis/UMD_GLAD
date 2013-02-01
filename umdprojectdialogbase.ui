@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>UmdProjectDialog</class>
+ <widget class="QDialog" name="UmdProjectDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QgsCollapsibleGroupBox" name="groupBox">
+    <widget class="QgsCollapsibleGroupBox" name="gbGeneral">
      <property name="title">
       <string>General</string>
      </property>
@@ -68,7 +68,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QgsCollapsibleGroupBox" name="groupBox_2">
+    <widget class="QgsCollapsibleGroupBox" name="gbProjection">
      <property name="title">
       <string>Projection settings</string>
      </property>
@@ -177,7 +177,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QgsCollapsibleGroupBox" name="groupBox_4">
+    <widget class="QgsCollapsibleGroupBox" name="gbProcessing">
      <property name="title">
       <string>Processing settings</string>
      </property>
@@ -223,7 +223,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QgsCollapsibleGroupBox" name="groupBox_5">
+    <widget class="QgsCollapsibleGroupBox" name="gbMetrics">
      <property name="title">
       <string>Metrics</string>
      </property>
@@ -266,7 +266,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>UmdProjectDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -282,7 +282,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>UmdProjectDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
