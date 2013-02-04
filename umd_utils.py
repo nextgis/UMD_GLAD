@@ -30,9 +30,10 @@ from PyQt4.QtCore import *
 from qgis.core import *
 
 def createPolygonShapeFile(filePath, crs):
-  fields = {0 : QgsField("id", QVariant.Int)
-           }
+  fields = QgsFields()
+  fields.append(QgsField("id", QVariant.Int))
 
   crs = QgsCoordinateReferenceSystem()
+  print filePath
   writer = QgsVectorFileWriter(filePath, "utf-8", fields, QGis.WKBPolygon, crs)
   del writer

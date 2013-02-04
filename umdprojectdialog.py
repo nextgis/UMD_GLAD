@@ -66,7 +66,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     #  - load projections from file (need projections file!)
 
     projDir = unicode(self.settings.value("lastProjectDir", ".").toString())
-    if os.path.join(projDir, "settings.ini").exists():
+    if os.path.exists(os.path.join(projDir, "settings.ini")):
         pass
 
   def reject(self):
@@ -94,10 +94,10 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
                          )
       return
 
-    if QFile().exists():
+    if QFile(self.leProjectDir.text() + "/settings.ini").exists():
       res = QMessageBox.warning(self,
                                 self.tr("Settings exists"),
-                                self.tr("This directory alreasy contains project settings file. Do you want to change it?",
+                                self.tr("This directory alreasy contains project settings file. Do you want to change it?"),
                                 QMessageBox.Yes | QMessageBox.No
                                )
 
