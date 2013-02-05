@@ -67,7 +67,13 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
 
     projDir = unicode(self.settings.value("lastProjectDir", ".").toString())
     if os.path.exists(os.path.join(projDir, "settings.ini")):
-        pass
+        self.leProjectDir.setText(projDir)
+        self.leProjectData.setText(self.settings.value("lastDataDir", ".").toString())
+
+        cfg = ConfigParser.SafeConfigParser()
+        cfg.read(os.path.join(projDir, "settings.ini"))
+        self.leProjectName.setText(cfg.get("General", "projectName"))
+
 
   def reject(self):
     QDialog.reject(self)
@@ -109,6 +115,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     # new project, create settings file
     cfg = ConfigParser.SafeConfigParser()
     cfg.add_section("General")
+    cfg.set("General", "projectName", unicode(self.leProjectName.text()))
     cfg.set("General", "threads", unicode(self.spnTilesThreads.value()))
     cfg.set("General", "treethreads", unicode(self.spnTreesThreads.value()))
     cfg.set("General", "region", unicode(""))
