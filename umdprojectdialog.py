@@ -73,7 +73,15 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read(os.path.join(projDir, "settings.ini"))
         self.leProjectName.setText(cfg.get("General", "projectName"))
+        self.spnTilesThreads.setValue(cfg.getint("General", "threads"))
+        self.spnTreesThreads.setValue(cfg.getint("General", "treethreads"))
+        self.spnUlx.setValue(cfg.getint("General", "ulxgrid"))
+        self.spnUly.setValue(cfg.getint("General", "ulygrid"))
+        self.spnTileSide.setValue(cfg.getint("General", "tileside"))
+        self.spnTileBuffer.setValue(cfg.getint("General", "tilebuffer"))
+        self.spnPixelSize.setValue(cfg.getint("General", "pixelsize"))
 
+    # TODO: load project
 
   def reject(self):
     QDialog.reject(self)
@@ -100,35 +108,25 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
                          )
       return
 
+    cfg = ConfigParser.SafeConfigParser()
+    cfgPath = os.path.join(unicode(self.leProjectDir.text()), "settings.ini")
+
     if QFile(self.leProjectDir.text() + "/settings.ini").exists():
       res = QMessageBox.warning(self,
                                 self.tr("Settings exists"),
-                                self.tr("This directory alreasy contains project settings file. Do you want to change it?"),
+                                self.tr("This directory already contains project settings file. Do you want to change it?"),
                                 QMessageBox.Yes | QMessageBox.No
                                )
 
       if res == QMessageBox.No:
         return
 
-      # TODO: read existing file and update it accordingly
+      # read existing file and update it accordingly
+      cfg.read(cfgPath)
 
-    # new project, create settings file
-    cfg = ConfigParser.SafeConfigParser()
-    cfg.add_section("General")
-    cfg.set("General", "projectName", unicode(self.leProjectName.text()))
-    cfg.set("General", "threads", unicode(self.spnTilesThreads.value()))
-    cfg.set("General", "treethreads", unicode(self.spnTreesThreads.value()))
-    cfg.set("General", "region", unicode(""))
-    cfg.set("General", "ulxgrid", unicode(self.spnUlx.value()))
-    cfg.set("General", "ulygrid", unicode(self.spnUlx.value()))
-    cfg.set("General", "prolong", unicode(""))
-    cfg.set("General", "tileside", unicode(self.spnTileSide.value()))
-    cfg.set("General", "tilebuffer", unicode(self.spnTileBuffer.value()))
-    cfg.set("General", "pixelsize", unicode(self.spnPixelSize.value()))
+    self.__writeConfigFile(cfg, cfgPath)
 
-    with open(unicode(QFileInfo(self.leProjectDir.text() + "/settings.ini").absoluteFilePath()), 'wb') as f:
-      cfg.write(f)
-
+    # TODO: don't create shapes if existing project opened
     self.createShapes()
 
     QgsProject.instance().title(self.leProjectName.text())
@@ -178,3 +176,21 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     else:
       self.leProjectData.setText(outPath)
       self.settings.setValue("lastDataDir", QDir(outPath).absolutePath())
+
+  def __writeConfigFile(self, cfg, filePath):
+      if not cfg.has_section("General"):
+        cfg.add_section("General")
+
+      cfg.set("General", "projectName", unicode(self.leProjectName.text()))
+      cfg.set("General", "threads", unicode(self.spnTilesThreads.value()))
+      cfg.set("General", "treethreads", unicode(self.spnTreesThreads.value()))
+      cfg.set("General", "region", unicode(""))
+      cfg.set("General", "ulxgrid", unicode(self.spnUlx.value()))
+      cfg.set("General", "ulygrid", unicode(self.spnUly.value()))
+      cfg.set("General", "prolong", unicode(""))
+      cfg.set("General", "tileside", unicode(self.spnTileSide.value()))
+      cfg.set("General", "tilebuffer", unicode(self.spnTileBuffer.value()))
+      cfg.set("General", "pixelsize", unicode(self.spnPixelSize.value()))
+
+      with open(filePath, 'wb') as f:
+        cfg.write(f)

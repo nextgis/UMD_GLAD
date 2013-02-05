@@ -66,8 +66,6 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     fileCount = 0
     template = QRegExp("^[0-9]{3}_[0-9]{3}$")
     for root, dirs, files in os.walk(directory):
-      print root
-      print root[-7:]
       if not template.exactMatch(QString(root[-7:])):
         print "No match"
         continue
