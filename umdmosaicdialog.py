@@ -25,7 +25,8 @@
 #
 #******************************************************************************
 
-import os.path
+import os
+import ConfigParser
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -167,10 +168,11 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
                          )
       return
 
+    settings = QSettings("NextGIS", "UMD")
     dataDir = settings.value("lastDataDir", "").toString()
 
     # read tile dimensions and prjection from settings
-    projDir = unicode(self.settings.value("lastProjectDir", ".").toString())
+    projDir = unicode(settings.value("lastProjectDir", ".").toString())
     if os.path.exists(os.path.join(projDir, "settings.ini")):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read(os.path.join(projDir, "settings.ini"))
@@ -181,8 +183,8 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
         self.pixelsize = cfg.getint("General", "pixelsize")
 
     # calculate geotransform
-    x = self.ulx + min(self.mH) * self.pixelsize * self.tileside - self.tilebuffer * self.pixelsize
-    y = self.uly - min(self.mV) * self.pixelsize * self.tileside + self.tilebuffer * self.pixelsize
+    x = self.ulx + min(self.mH) * self.pixelsize * self.tilesize - self.tilebuffer * self.pixelsize
+    y = self.uly - min(self.mV) * self.pixelsize * self.tilesize + self.tilebuffer * self.pixelsize
 
     gt = [str(x),
           str(self.pixelsize),
@@ -193,8 +195,8 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
          ]
 
     # calculate mosaic dimensions
-    mosaicWidth = self.tileside * len(self.mH)
-    mosaicHeight = self.tileside * len(self.mV)
+    mosaicWidth = self.tilesize * len(self.mH)
+    mosaicHeight = self.tilesize * len(self.mV)
 
     # check for selected items and also sort them by datatype
     bandTypes = dict()
@@ -205,7 +207,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
         if item.checkState() == Qt.Checked:
           selectedItemsCount += 1
 
-          dt = item.data(Qt.UserRole + 1)
+          dt = item.data(Qt.UserRole + 1).toString()
           if dt not in bandTypes:
             bandTypes[dt] = [item]
           else:
@@ -256,6 +258,6 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       stream << "<SimpleSource>\n"
       stream << QString("<SourceFilename relativeToVRT=\"0\">%1</SourceFilename>\n").arg(fName)
       stream << QString("<SourceBand>%1</SourceBand>\n").arg(metric.data(Qt.UserRole + 2))
-      stream << QString("<SourceProperties RasterXSize=\"%1\" RasterYSize=\"%2\" DataType=\"%3\" BlockXSize=\"%4\" BlockYSize=\"%5\"/>\n").arg(self.tileside).arg(self.tileside).arg(dataType).arg(self.tileside).arg(self.tilebuffer / 2)
-      stream << QString("<SrcRect xOff=\"%1\" yOff=\"%2\" xSize=\"%3\" ySize=\"%4\"/>\n").arg(0).arg(0).arg(self.tileside).arg(self.tileside)
+      stream << QString("<SourceProperties RasterXSize=\"%1\" RasterYSize=\"%2\" DataType=\"%3\" BlockXSize=\"%4\" BlockYSize=\"%5\"/>\n").arg(self.tilesize).arg(self.tilesize).arg(dataType).arg(self.tilesize).arg(self.tilebuffer / 2)
+      stream << QString("<SrcRect xOff=\"%1\" yOff=\"%2\" xSize=\"%3\" ySize=\"%4\"/>\n").arg(0).arg(0).arg(self.tilesize).arg(self.tilesize)
       stream << "</SimpleSource>\n"
