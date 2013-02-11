@@ -42,7 +42,6 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     QDialog.__init__(self)
     self.setupUi(self)
 
-    # plugin is a pointer to UMD plugin instance
     self.plugin = plugin
     self.iface = plugin.iface
 
@@ -81,7 +80,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
         self.spnTileBuffer.setValue(cfg.getint("General", "tilebuffer"))
         self.spnPixelSize.setValue(cfg.getint("General", "pixelsize"))
 
-    # TODO: load project
+        QgsProject.instance().read(os.path.join(projDir, unicode(self.leProjectName.text())))
 
   def reject(self):
     QDialog.reject(self)
