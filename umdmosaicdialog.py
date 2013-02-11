@@ -64,11 +64,21 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
     metrics = dict()
     mDirs = []
+    self.mH = []
+    self.mV = []
     fileCount = 0
     template = QRegExp("^[0-9]{3}_[0-9]{3}$")
     for root, dirs, files in os.walk(directory):
       if not template.exactMatch(QString(root[-7:])):
         continue
+
+      # get indexes
+      h = int(root[-7:-4])
+      v = int(root[-3:])
+      if h not in self.mH:
+        self.mH.append(h)
+      if v not in self.mV:
+        self.mV.append(v)
 
       # try to open VRT and read metrics from it
       fName = os.path.normpath(os.path.join(root, "metric.vrt"))
@@ -170,6 +180,22 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
         self.tilebuffer = cfg.getint("General", "tilebuffer")
         self.pixelsize = cfg.getint("General", "pixelsize")
 
+    # calculate geotransform
+    x = self.ulx + min(self.mH) * self.pixelsize * self.tileside - self.tilebuffer * self.pixelsize
+    y = self.uly - min(self.mV) * self.pixelsize * self.tileside + self.tilebuffer * self.pixelsize
+
+    gt = [str(x),
+          str(self.pixelsize),
+          str(0),
+          str(y),
+          str(0),
+          str(-self.pixelsize)
+         ]
+
+    # calculate mosaic dimensions
+    mosaicWidth = self.tileside * len(self.mH)
+    mosaicHeight = self.tileside * len(self.mV)
+
     # check for selected items and also sort them by datatype
     bandTypes = dict()
     selectedItemsCount = 0
@@ -197,7 +223,6 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
     for k, v in bandTypes:
       print "Create VRT for type", k
-      # TODO: get upper left corner
 
       f = QFile(self.leOutput.text())
       if not f.open(QIODeice.WriteOnly | QIODevice.Text):
@@ -205,9 +230,9 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
         return
 
       s = QTextStream(f)
-      s << QString("<VRTDataset rasterXSize=\"%1\" rasterYSize=\"%2\">\n").arg("xsize").arg("ysize")
+      s << QString("<VRTDataset rasterXSize=\"%1\" rasterYSize=\"%2\">\n").arg(mosaicWidth).arg(mosaicHeight)
       s << QString("<SRS>%1</SRS>\n").arg("PROJCS[&quot;Earth_Sinusoidal&quot;,GEOGCS[&quot;Normal Sphere&quot;,DATUM[&quot;Normal Sphere&quot;,SPHEROID[&quot;Normal Sphere&quot;,6370997,0]],PRIMEM[&quot;Greenwich&quot;,0],UNIT[&quot;Decimal_Degree&quot;,0.017453]],PROJECTION[&quot;Sinusoidal&quot;],PARAMETER[&quot;False_Easting&quot;,0],PARAMETER[&quot;False_Northing&quot;,0],PARAMETER[&quot;Central_Meridian&quot;,-60],PARAMETER[&quot;Longitude_of_center&quot;,-60],UNIT[&quot;Meter&quot;,1]]")
-      s << QString("<GeoTransform>%1</GeoTransform>\n").arg("geotransform")
+      s << QString("<GeoTransform>%1</GeoTransform>\n").arg(gt)
 
       bandNum = 1
       for i in v:
