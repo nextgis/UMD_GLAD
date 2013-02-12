@@ -82,7 +82,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
         self.mV.append(v)
 
       # try to open VRT and read metrics from it
-      fName = os.path.normpath(os.path.join(root, "metric.vrt"))
+      fName = os.path.normpath(os.path.join(root, "mymetric.vrt"))
       f = QFile(fName)
       if not f.open(QIODevice.ReadOnly | QIODevice.Text):
         QMessageBox.warning(self,
@@ -211,7 +211,9 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
           if dt not in bandTypes:
             bandTypes[dt] = [item]
           else:
-            bandTypes[dt].append(item)
+            lst = bandTypes[dt]
+            lst.append(item)
+            bandTypes[dt] = lst
 
     if selectedItemsCount == 0:
       QMessageBox.warning(self,
@@ -221,20 +223,20 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       return
 
     # write output
-    print bandTypes
+    print "TYPES", bandTypes
 
-    for k, v in bandTypes:
+    for k, v in bandTypes.iteritems():
       print "Create VRT for type", k
 
       f = QFile(self.leOutput.text())
-      if not f.open(QIODeice.WriteOnly | QIODevice.Text):
+      if not f.open(QIODevice.WriteOnly | QIODevice.Text):
         print "Can't open file"
         return
 
       s = QTextStream(f)
       s << QString("<VRTDataset rasterXSize=\"%1\" rasterYSize=\"%2\">\n").arg(mosaicWidth).arg(mosaicHeight)
       s << QString("<SRS>%1</SRS>\n").arg("PROJCS[&quot;Earth_Sinusoidal&quot;,GEOGCS[&quot;Normal Sphere&quot;,DATUM[&quot;Normal Sphere&quot;,SPHEROID[&quot;Normal Sphere&quot;,6370997,0]],PRIMEM[&quot;Greenwich&quot;,0],UNIT[&quot;Decimal_Degree&quot;,0.017453]],PROJECTION[&quot;Sinusoidal&quot;],PARAMETER[&quot;False_Easting&quot;,0],PARAMETER[&quot;False_Northing&quot;,0],PARAMETER[&quot;Central_Meridian&quot;,-60],PARAMETER[&quot;Longitude_of_center&quot;,-60],UNIT[&quot;Meter&quot;,1]]")
-      s << QString("<GeoTransform>%1</GeoTransform>\n").arg(gt)
+      s << QString("<GeoTransform>%1</GeoTransform>\n").arg(", ".join(gt))
 
       bandNum = 1
       for i in v:
@@ -249,7 +251,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
   def __createBand(self, stream, dataType, metric, rootDir):
     template = QRegExp("^[0-9]{3}_[0-9]{3}$")
-    for root, dirs, files in os.walk(directory):
+    for root, dirs, files in os.walk(unicode(rootDir)):
       if not template.exactMatch(QString(root[-7:])):
         continue
 
@@ -257,7 +259,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
       stream << "<SimpleSource>\n"
       stream << QString("<SourceFilename relativeToVRT=\"0\">%1</SourceFilename>\n").arg(fName)
-      stream << QString("<SourceBand>%1</SourceBand>\n").arg(metric.data(Qt.UserRole + 2))
+      stream << QString("<SourceBand>%1</SourceBand>\n").arg(metric.data(Qt.UserRole + 2).toString())
       stream << QString("<SourceProperties RasterXSize=\"%1\" RasterYSize=\"%2\" DataType=\"%3\" BlockXSize=\"%4\" BlockYSize=\"%5\"/>\n").arg(self.tilesize).arg(self.tilesize).arg(dataType).arg(self.tilesize).arg(self.tilebuffer / 2)
       stream << QString("<SrcRect xOff=\"%1\" yOff=\"%2\" xSize=\"%3\" ySize=\"%4\"/>\n").arg(0).arg(0).arg(self.tilesize).arg(self.tilesize)
       stream << "</SimpleSource>\n"
