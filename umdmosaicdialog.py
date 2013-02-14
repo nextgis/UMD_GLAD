@@ -48,17 +48,20 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     self.btnClose = self.buttonBox.button(QDialogButtonBox.Close)
 
     self.model = QStandardItemModel()
+    self.filterModel = QSortFilterProxyModel()
 
     self.btnBrowse.clicked.connect(self.selectOutput)
 
     self.manageGui()
 
   def manageGui(self):
-    self.lstMetrics.setModel(self.model)
+    self.filterModel.setSourceModel(self.model)
+    self.lstMetrics.setModel(self.filterModel)
 
     settings = QSettings("NextGIS", "UMD")
     dataDir = settings.value("lastDataDir", "").toString()
     self.loadMetrics(unicode(dataDir))
+    self.filterModel.sort(0)
 
   def loadMetrics(self, directory):
     self.model.clear()
@@ -73,7 +76,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       if not template.exactMatch(QString(root[-7:])):
         continue
 
-      # get indexes
+      # get tile indexes
       h = int(root[-7:-4])
       v = int(root[-3:])
       if h not in self.mH:
@@ -81,58 +84,65 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       if v not in self.mV:
         self.mV.append(v)
 
-      # try to open VRT and read metrics from it
-      fName = os.path.normpath(os.path.join(root, "mymetric.vrt"))
-      f = QFile(fName)
-      if not f.open(QIODevice.ReadOnly | QIODevice.Text):
-        QMessageBox.warning(self,
-                            self.tr("Load error"),
-                            self.tr("Cannot read file %1:\n%2.")
-                            .arg(fileName)
-                            .arg(fl.errorString())
-                           )
-        continue
+      names = QStringList() << "*.vrt" << "*.VRT"
+      vrts = QDir(root).entryList(names, QDir.Files)
+      print "FOUND VRTs", unicode(vrts.join(" "))
+      for f in vrts:
+        fName = os.path.normpath(os.path.join(root,unicode(f)))
+        f = QFile(fName)
+        if not f.open(QIODevice.ReadOnly | QIODevice.Text):
+          QMessageBox.warning(self,
+                              self.tr("Load error"),
+                              self.tr("Cannot read file %1:\n%2.")
+                              .arg(fileName)
+                              .arg(fl.errorString())
+                             )
+          continue
 
-      mDirs.append(root)
+        if root not in mDirs:
+          mDirs.append(root)
 
-      doc = QDomDocument()
-      setOk, errorString, errorLine, errorColumn = doc.setContent(f, True)
-      f.close()
-      if not setOk:
-        QMessageBox.warning(self,
-                            self.tr("Load error"),
-                            self.tr("Parse error at line %1, column %2:\n%3")
-                            .arg(errorLine)
-                            .arg(errorColumn)
-                            .arg(errorString)
-                           )
-        continue
+        doc = QDomDocument()
+        setOk, errorString, errorLine, errorColumn = doc.setContent(f, True)
+        f.close()
+        if not setOk:
+          QMessageBox.warning(self,
+                              self.tr("Load error"),
+                              self.tr("Parse error at line %1, column %2:\n%3")
+                              .arg(errorLine)
+                              .arg(errorColumn)
+                              .arg(errorString)
+                             )
+          continue
 
-      fileCount += 1
+        fileCount += 1
 
-      # parse file
-      r = doc.documentElement()
-      bands = r.elementsByTagName("VRTRasterBand")
-      for i in xrange(0, bands.length()):
-        b = bands.at(i)
-        e = b.toElement()
-        dataType = e.attribute("dataType")
-        bandNo = e.attribute("band")
-        descr = e.firstChildElement("Description").text()
-        if descr not in metrics:
-          data = {"type" : dataType,
-                  "band" : bandNo,
-                  "count": 1
-                 }
-          metrics[descr] = data
-        else:
-          d = metrics[descr]
-          if dataType != d["type"]:
-            continue
-          d["count"] += 1
-          metrics[descr] = d
+        # parse file
+        r = doc.documentElement()
+        bands = r.elementsByTagName("VRTRasterBand")
+        for i in xrange(0, bands.length()):
+          b = bands.at(i)
+          e = b.toElement()
+          dataType = e.attribute("dataType")
+          bandNo = e.attribute("band")
+          descr = e.firstChildElement("Description").text()
+          if descr not in metrics:
+            data = {"type" : dataType,
+                    "band" : bandNo,
+                    "count": 1
+                   }
+            metrics[descr] = data
+          else:
+            d = metrics[descr]
+            if dataType != d["type"]:
+              continue
+            d["count"] += 1
+            metrics[descr] = d
 
+    print "POPULATE"
     for k, v in metrics.iteritems():
+      print k
+      print v
       if v["count"] != fileCount:
         continue
 
@@ -141,6 +151,69 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       item.setData(v["type"], Qt.UserRole + 1)
       item.setData(v["band"], Qt.UserRole + 2)
       self.model.appendRow(item)
+
+      #~ return
+#~
+      #~ # try to open VRT and read metrics from it
+      #~ fName = os.path.normpath(os.path.join(root, "mymetric.vrt"))
+      #~ f = QFile(fName)
+      #~ if not f.open(QIODevice.ReadOnly | QIODevice.Text):
+        #~ QMessageBox.warning(self,
+                            #~ self.tr("Load error"),
+                            #~ self.tr("Cannot read file %1:\n%2.")
+                            #~ .arg(fileName)
+                            #~ .arg(fl.errorString())
+                           #~ )
+        #~ continue
+#~
+      #~ mDirs.append(root)
+#~
+      #~ doc = QDomDocument()
+      #~ setOk, errorString, errorLine, errorColumn = doc.setContent(f, True)
+      #~ f.close()
+      #~ if not setOk:
+        #~ QMessageBox.warning(self,
+                            #~ self.tr("Load error"),
+                            #~ self.tr("Parse error at line %1, column %2:\n%3")
+                            #~ .arg(errorLine)
+                            #~ .arg(errorColumn)
+                            #~ .arg(errorString)
+                           #~ )
+        #~ continue
+#~
+      #~ fileCount += 1
+#~
+      #~ # parse file
+      #~ r = doc.documentElement()
+      #~ bands = r.elementsByTagName("VRTRasterBand")
+      #~ for i in xrange(0, bands.length()):
+        #~ b = bands.at(i)
+        #~ e = b.toElement()
+        #~ dataType = e.attribute("dataType")
+        #~ bandNo = e.attribute("band")
+        #~ descr = e.firstChildElement("Description").text()
+        #~ if descr not in metrics:
+          #~ data = {"type" : dataType,
+                  #~ "band" : bandNo,
+                  #~ "count": 1
+                 #~ }
+          #~ metrics[descr] = data
+        #~ else:
+          #~ d = metrics[descr]
+          #~ if dataType != d["type"]:
+            #~ continue
+          #~ d["count"] += 1
+          #~ metrics[descr] = d
+#~
+    #~ for k, v in metrics.iteritems():
+      #~ if v["count"] != fileCount:
+        #~ continue
+#~
+      #~ item = QStandardItem(k)
+      #~ item.setCheckable(True)
+      #~ item.setData(v["type"], Qt.UserRole + 1)
+      #~ item.setData(v["band"], Qt.UserRole + 2)
+      #~ self.model.appendRow(item)
 
   def selectOutput(self):
     settings = QSettings("NextGIS", "UMD")

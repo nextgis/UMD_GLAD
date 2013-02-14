@@ -80,7 +80,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
         self.spnTileBuffer.setValue(cfg.getint("General", "tilebuffer"))
         self.spnPixelSize.setValue(cfg.getint("General", "pixelsize"))
 
-        QgsProject.instance().read(os.path.join(projDir, unicode(self.leProjectName.text())))
+        QgsProject.instance().read(QFileInfo(os.path.join(projDir, unicode(self.leProjectName.text()))))
 
   def reject(self):
     QDialog.reject(self)
@@ -126,7 +126,14 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     self.__writeConfigFile(cfg, cfgPath)
 
     # TODO: don't create shapes if existing project opened
-    self.createShapes()
+    layers = QgsMapLayerRegistry.instance().mapLayers()
+    layersFound = False
+    for layer in layers:
+      if layer.type() == QgsMapLayer.VectorLayer and layer.name() in ["target", "background"]:
+        layersFound = True
+
+    if not layersFound:
+      self.createShapes()
 
     QgsProject.instance().title(self.leProjectName.text())
     QgsProject.instance().setFileName(QString("%1/%2.qgs").arg(self.leProjectDir.text()).arg(self.leProjectName.text()))
