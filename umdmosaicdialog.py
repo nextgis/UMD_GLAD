@@ -67,22 +67,12 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     self.model.clear()
 
     metrics = dict()
-    mDirs = []
-    self.mH = []
-    self.mV = []
+    self.usedDirs = []
     fileCount = 0
     template = QRegExp("^[0-9]{3}_[0-9]{3}$")
     for root, dirs, files in os.walk(directory):
       if not template.exactMatch(QString(root[-7:])):
         continue
-
-      # get tile indexes
-      h = int(root[-7:-4])
-      v = int(root[-3:])
-      if h not in self.mH:
-        self.mH.append(h)
-      if v not in self.mV:
-        self.mV.append(v)
 
       names = QStringList() << "*.vrt" << "*.VRT"
       vrts = QDir(root).entryList(names, QDir.Files)
@@ -99,8 +89,8 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
                              )
           continue
 
-        if root not in mDirs:
-          mDirs.append(root)
+        if root not in self.usedDirs:
+          self.usedDirs.append(root)
 
         doc = QDomDocument()
         setOk, errorString, errorLine, errorColumn = doc.setContent(f, True)
@@ -129,6 +119,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
           if descr not in metrics:
             data = {"type" : dataType,
                     "band" : bandNo,
+                    "fileName", f,
                     "count": 1
                    }
             metrics[descr] = data
@@ -139,10 +130,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
             d["count"] += 1
             metrics[descr] = d
 
-    print "POPULATE"
     for k, v in metrics.iteritems():
-      print k
-      print v
       if v["count"] != fileCount:
         continue
 
@@ -150,70 +138,8 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       item.setCheckable(True)
       item.setData(v["type"], Qt.UserRole + 1)
       item.setData(v["band"], Qt.UserRole + 2)
+      item.setData(v["band"], Qt.UserRole + 3)
       self.model.appendRow(item)
-
-      #~ return
-#~
-      #~ # try to open VRT and read metrics from it
-      #~ fName = os.path.normpath(os.path.join(root, "mymetric.vrt"))
-      #~ f = QFile(fName)
-      #~ if not f.open(QIODevice.ReadOnly | QIODevice.Text):
-        #~ QMessageBox.warning(self,
-                            #~ self.tr("Load error"),
-                            #~ self.tr("Cannot read file %1:\n%2.")
-                            #~ .arg(fileName)
-                            #~ .arg(fl.errorString())
-                           #~ )
-        #~ continue
-#~
-      #~ mDirs.append(root)
-#~
-      #~ doc = QDomDocument()
-      #~ setOk, errorString, errorLine, errorColumn = doc.setContent(f, True)
-      #~ f.close()
-      #~ if not setOk:
-        #~ QMessageBox.warning(self,
-                            #~ self.tr("Load error"),
-                            #~ self.tr("Parse error at line %1, column %2:\n%3")
-                            #~ .arg(errorLine)
-                            #~ .arg(errorColumn)
-                            #~ .arg(errorString)
-                           #~ )
-        #~ continue
-#~
-      #~ fileCount += 1
-#~
-      #~ # parse file
-      #~ r = doc.documentElement()
-      #~ bands = r.elementsByTagName("VRTRasterBand")
-      #~ for i in xrange(0, bands.length()):
-        #~ b = bands.at(i)
-        #~ e = b.toElement()
-        #~ dataType = e.attribute("dataType")
-        #~ bandNo = e.attribute("band")
-        #~ descr = e.firstChildElement("Description").text()
-        #~ if descr not in metrics:
-          #~ data = {"type" : dataType,
-                  #~ "band" : bandNo,
-                  #~ "count": 1
-                 #~ }
-          #~ metrics[descr] = data
-        #~ else:
-          #~ d = metrics[descr]
-          #~ if dataType != d["type"]:
-            #~ continue
-          #~ d["count"] += 1
-          #~ metrics[descr] = d
-#~
-    #~ for k, v in metrics.iteritems():
-      #~ if v["count"] != fileCount:
-        #~ continue
-#~
-      #~ item = QStandardItem(k)
-      #~ item.setCheckable(True)
-      #~ item.setData(v["type"], Qt.UserRole + 1)
-      #~ item.setData(v["band"], Qt.UserRole + 2)
-      #~ self.model.appendRow(item)
 
   def selectOutput(self):
     settings = QSettings("NextGIS", "UMD")
@@ -241,52 +167,21 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
                          )
       return
 
-    settings = QSettings("NextGIS", "UMD")
-    dataDir = settings.value("lastDataDir", "").toString()
 
-    # read tile dimensions and prjection from settings
-    projDir = unicode(settings.value("lastProjectDir", ".").toString())
-    if os.path.exists(os.path.join(projDir, "settings.ini")):
-        cfg = ConfigParser.SafeConfigParser()
-        cfg.read(os.path.join(projDir, "settings.ini"))
-        self.ulx = cfg.getint("General", "ulxgrid")
-        self.uly = cfg.getint("General", "ulygrid")
-        self.tilesize = cfg.getint("General", "tileside")
-        self.tilebuffer = cfg.getint("General", "tilebuffer")
-        self.pixelsize = cfg.getint("General", "pixelsize")
-
-    # calculate geotransform
-    x = self.ulx + min(self.mH) * self.pixelsize * self.tilesize - self.tilebuffer * self.pixelsize
-    y = self.uly - min(self.mV) * self.pixelsize * self.tilesize + self.tilebuffer * self.pixelsize
-
-    gt = [str(x),
-          str(self.pixelsize),
-          str(0),
-          str(y),
-          str(0),
-          str(-self.pixelsize)
-         ]
-
-    # calculate mosaic dimensions
-    mosaicWidth = self.tilesize * len(self.mH)
-    mosaicHeight = self.tilesize * len(self.mV)
-
-    # check for selected items and also sort them by datatype
-    bandTypes = dict()
-    selectedItemsCount = 0
+    metrics = dict()
     for row in xrange(self.model.rowCount()):
       for col in xrange(self.model.columnCount()):
         item = self.model.item(row, col)
         if item.checkState() == Qt.Checked:
           selectedItemsCount += 1
+          descr = unicode(item.text())
 
-          dt = item.data(Qt.UserRole + 1).toString()
-          if dt not in bandTypes:
-            bandTypes[dt] = [item]
-          else:
-            lst = bandTypes[dt]
-            lst.append(item)
-            bandTypes[dt] = lst
+          if descr not in metrics:
+            info = {"band" : item.data(Qt.UserRole + 2).toString(),
+                    "file" : item.data(Qt.UserRole + 3).toString()
+                   }
+            metrics[descr] = info
+
 
     if selectedItemsCount == 0:
       QMessageBox.warning(self,
@@ -296,43 +191,27 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       return
 
     # write output
-    print "TYPES", bandTypes
+    lstMosaic = []
+    lstBands = []
+    for k, v in metrics:
+      for d in self.usedDirs:
+        tmp = os.path.join(d, unicode(v["file"]))
+        lstMosaic.append(tmp)
+        lstBands.append(v["band"])
 
-    for k, v in bandTypes.iteritems():
-      print "Create VRT for type", k
+    # save filepaths to tmp file
+    tmpFile = QTemporaryFile()
+    if not tmpFile.open(QIODevice.WriteOnly | QIODevice.Text):
+      return
 
-      f = QFile(self.leOutput.text())
-      if not f.open(QIODevice.WriteOnly | QIODevice.Text):
-        print "Can't open file"
-        return
+    out = QTextStream(tmpFile)
+    for i in lstMosaic:
+      out << i << "\n"
 
-      s = QTextStream(f)
-      s << QString("<VRTDataset rasterXSize=\"%1\" rasterYSize=\"%2\">\n").arg(mosaicWidth).arg(mosaicHeight)
-      s << QString("<SRS>%1</SRS>\n").arg("PROJCS[&quot;Earth_Sinusoidal&quot;,GEOGCS[&quot;Normal Sphere&quot;,DATUM[&quot;Normal Sphere&quot;,SPHEROID[&quot;Normal Sphere&quot;,6370997,0]],PRIMEM[&quot;Greenwich&quot;,0],UNIT[&quot;Decimal_Degree&quot;,0.017453]],PROJECTION[&quot;Sinusoidal&quot;],PARAMETER[&quot;False_Easting&quot;,0],PARAMETER[&quot;False_Northing&quot;,0],PARAMETER[&quot;Central_Meridian&quot;,-60],PARAMETER[&quot;Longitude_of_center&quot;,-60],UNIT[&quot;Meter&quot;,1]]")
-      s << QString("<GeoTransform>%1</GeoTransform>\n").arg(", ".join(gt))
+    # now we can run gdalbuildvrt
 
-      bandNum = 1
-      for i in v:
-        print "processing metric", i.text()
-        s << QString("<VRTRasterBand dataType=\"%1\" band=\"%2\">\n").arg(k).arg(bandNum)
-        self.__createBand(s, k, i, dataDir)
-        s << QString("</VRTRasterBand>\n")
-        bandNum += 1
 
-      s << QString("</VRTDataset>\n")
-      f.close()
+    tmpFile.close()
 
-  def __createBand(self, stream, dataType, metric, rootDir):
-    template = QRegExp("^[0-9]{3}_[0-9]{3}$")
-    for root, dirs, files in os.walk(unicode(rootDir)):
-      if not template.exactMatch(QString(root[-7:])):
-        continue
+    # build overviews for tiles and whole mosaic
 
-      fName = os.path.normpath(os.path.join(root, "mymetric.vrt"))
-
-      stream << "<SimpleSource>\n"
-      stream << QString("<SourceFilename relativeToVRT=\"0\">%1</SourceFilename>\n").arg(fName)
-      stream << QString("<SourceBand>%1</SourceBand>\n").arg(metric.data(Qt.UserRole + 2).toString())
-      stream << QString("<SourceProperties RasterXSize=\"%1\" RasterYSize=\"%2\" DataType=\"%3\" BlockXSize=\"%4\" BlockYSize=\"%5\"/>\n").arg(self.tilesize).arg(self.tilesize).arg(dataType).arg(self.tilesize).arg(self.tilebuffer / 2)
-      stream << QString("<SrcRect xOff=\"%1\" yOff=\"%2\" xSize=\"%3\" ySize=\"%4\"/>\n").arg(0).arg(0).arg(self.tilesize).arg(self.tilesize)
-      stream << "</SimpleSource>\n"
