@@ -77,8 +77,8 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       names = QStringList() << "*.vrt" << "*.VRT"
       vrts = QDir(root).entryList(names, QDir.Files)
       print "FOUND VRTs", unicode(vrts.join(" "))
-      for f in vrts:
-        fName = os.path.normpath(os.path.join(root,unicode(f)))
+      for vrt in vrts:
+        fName = os.path.normpath(os.path.join(root,unicode(vrt)))
         f = QFile(fName)
         if not f.open(QIODevice.ReadOnly | QIODevice.Text):
           QMessageBox.warning(self,
@@ -119,7 +119,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
           if descr not in metrics:
             data = {"type" : dataType,
                     "band" : bandNo,
-                    "fileName", f,
+                    "fileName" : vrt,
                     "count": 1
                    }
             metrics[descr] = data
@@ -138,7 +138,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       item.setCheckable(True)
       item.setData(v["type"], Qt.UserRole + 1)
       item.setData(v["band"], Qt.UserRole + 2)
-      item.setData(v["band"], Qt.UserRole + 3)
+      item.setData(v["fileName"], Qt.UserRole + 3)
       self.model.appendRow(item)
 
   def selectOutput(self):
@@ -169,38 +169,54 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
 
     metrics = dict()
+    bandTypes = []
     for row in xrange(self.model.rowCount()):
       for col in xrange(self.model.columnCount()):
         item = self.model.item(row, col)
         if item.checkState() == Qt.Checked:
-          selectedItemsCount += 1
           descr = unicode(item.text())
 
           if descr not in metrics:
             info = {"band" : item.data(Qt.UserRole + 2).toString(),
                     "file" : item.data(Qt.UserRole + 3).toString()
                    }
+            bt = unicode(item.data(Qt.UserRole + 1).toString())
+            if bt not in bandTypes:
+              bandTypes.append(item.data(Qt.UserRole + 1).toString())
             metrics[descr] = info
 
-
-    if selectedItemsCount == 0:
+    if len(metrics) == 0:
       QMessageBox.warning(self,
                           self.tr("No metrics"),
                           self.tr("Metrics for mosaic are not selected. Please select at least one metric an try again.")
                          )
       return
 
+    if len(bandTypes) > 1:
+      res = QMessageBox.warning(self,
+                                self.tr("Incompatible data types"),
+                                self.tr("Selected metrics have different data types. This will cause slow rendering of mosaic. Continue?"),
+                                QMessageBox.Yes | QMessageBox.No
+                               )
+      if res == QMessageBox.No:
+        return
+
+    print metrics
+
     # write output
     lstMosaic = []
     lstBands = []
-    for k, v in metrics:
+    for k, v in metrics.iteritems():
       for d in self.usedDirs:
         tmp = os.path.join(d, unicode(v["file"]))
+        print "VRT PATH", tmp
         lstMosaic.append(tmp)
-        lstBands.append(v["band"])
+        if v["band"] not in lstBands:
+          lstBands.append(v["band"])
 
     # save filepaths to tmp file
     tmpFile = QTemporaryFile()
+    #tmpFile = QFile("/tmp/mytempfile.txt")
     if not tmpFile.open(QIODevice.WriteOnly | QIODevice.Text):
       return
 
@@ -209,9 +225,87 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       out << i << "\n"
 
     # now we can run gdalbuildvrt
+    self.process = QProcess(self)
+    self.process.error.connect(self.processError)
+    self.process.finished.connect(self.processFinished)
 
+    self.__setProcessEnvironment(self.process)
 
-    tmpFile.close()
+    args = QStringList()
 
-    # build overviews for tiles and whole mosaic
+    args << "-input_file_list"
+    args << tmpFile.fileName()
+    for b in lstBands:
+      args << "-b"
+      args << b
+    args << self.leOutput.text()
 
+    self.process.start("/opt/gdal/bin/gdalbuildvrt", args, QIODevice.ReadOnly)
+
+    if self.process.waitForFinished(-1):
+      tmpFile.close()
+
+    # then build overviews for tiles
+    for i in lstMosaic:
+      args.clear()
+      for b in lstBands:
+        args << "-b"
+        args << b
+      args << i
+      args << "2 4 8 16"
+      self.process.start("/opt/gdal/bin/gdaladdo", args, QIODevice.ReadOnly)
+
+      if self.process.waitForFinished(-1):
+        pass
+
+    # and whole mosaic
+    #args.clear()
+    #args << self.leOutput.text()
+    #args << "8 16 32 64 128 256 512 1024 2018"
+    #self.process.start("/opt/gdal/bin/gdaladdo", args, QIODevice.ReadOnly)
+
+    #if self.process.waitForFinished(-1):
+    #  print "Finished"
+
+  def processError(self, error):
+    if error == QProcess.FailedToStart:
+      print "Failed to start"
+    elif error == QProcess.Crashed:
+      print "Crashed"
+    else:
+      print "Unknown error"
+
+  def processFinished(self, exitCode, status):
+    if status == QProcess.CrashExit:
+      print "crash"
+
+    msg = QString.fromLocal8Bit(self.process.readAllStandardError())
+    if msg.isEmpty():
+      msg = QString.fromLocal8Bit(self.process.readAllStandardOutput())
+
+    print unicode(msg)
+
+    self.process.kill()
+
+  def __setProcessEnvironment(self, process):
+    envVars = {
+               "GDAL_FILENAME_IS_UTF8" : "NO",
+               "LD_LIBRARY_PATH" : "/opt/gdal/lib"
+              }
+
+    sep = os.pathsep
+
+    for name, value in envVars.iteritems():
+      if value is None or value == "":
+        continue
+
+      envval = os.getenv(name)
+      if envval is None or envval == "":
+        envval = unicode(value)
+      elif not QString(envval).split(sep).contains(value, Qt.CaseInsensitive):
+        envval += "%s%s" % (sep, unicode(value))
+      else:
+        envval = None
+
+      if envval is not None:
+        os.putenv(name, envval)
