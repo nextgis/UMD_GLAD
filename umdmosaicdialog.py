@@ -34,6 +34,8 @@ from PyQt4.QtXml import *
 
 from qgis.core import *
 
+import mosaicthread
+
 from ui_umdmosaicdialogbase import Ui_Dialog
 
 class UmdMosaicDialog(QDialog, Ui_Dialog):
@@ -47,6 +49,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     self.btnOk = self.buttonBox.button(QDialogButtonBox.Ok)
     self.btnClose = self.buttonBox.button(QDialogButtonBox.Close)
 
+    self.workThread = None
     self.model = QStandardItemModel()
     self.filterModel = QSortFilterProxyModel()
 
@@ -159,8 +162,12 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     self.leOutput.setText(outPath)
     settings.setValue("lastVRTDir", QFileInfo(outPath).absoluteDir().absolutePath())
 
+  def reject(self):
+    QDialog.reject(self)
+
   def accept(self):
-    if self.leOutput.text().isEmpty():
+    self.outputFileName = self.leOutput.text()
+    if self.outputFileName.isEmpty():
       QMessageBox.warning(self,
                           self.tr("No output"),
                           self.tr("Output file is not set. Please enter correct filename and try again.")
@@ -201,111 +208,58 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       if res == QMessageBox.No:
         return
 
-    print metrics
+    self.workThread = mosaicthread.MosaicThread(metrics,
+                                                self.usedDirs,
+                                                self.outputFileName
+                                               )
 
-    # write output
-    lstMosaic = []
-    lstBands = []
-    for k, v in metrics.iteritems():
-      for d in self.usedDirs:
-        tmp = os.path.join(d, unicode(v["file"]))
-        print "VRT PATH", tmp
-        lstMosaic.append(tmp)
-        if v["band"] not in lstBands:
-          lstBands.append(v["band"])
+    self.workThread.rangeChanged.connect(self.setProgressRange)
+    self.workThread.updateProgress.connect(self.updateProgress)
+    self.workThread.processFinished.connect(self.processFinished)
+    self.workThread.processInterrupted.connect(self.processInterrupted)
 
-    # save filepaths to tmp file
-    tmpFile = QTemporaryFile()
-    #tmpFile = QFile("/tmp/mytempfile.txt")
-    if not tmpFile.open(QIODevice.WriteOnly | QIODevice.Text):
-      return
+    self.btnOk.setEnabled(False)
+    self.btnClose.setText(self.tr("Cancel"))
+    self.buttonBox.rejected.disconnect(self.reject)
+    self.btnClose.clicked.connect(self.stopProcessing)
 
-    out = QTextStream(tmpFile)
-    for i in lstMosaic:
-      out << i << "\n"
+    self.workThread.start()
 
-    # now we can run gdalbuildvrt
-    self.process = QProcess(self)
-    self.process.error.connect(self.processError)
-    self.process.finished.connect(self.processFinished)
+  def setProgressRange(self, maxValue):
+    self.progressBar.setRange(0, maxValue)
 
-    self.__setProcessEnvironment(self.process)
+  def updateProgress(self):
+    self.progressBar.setValue(self.progressBar.value() + 1)
 
-    args = QStringList()
+  def processFinished(self):
+    self.stopProcessing()
+    self.restoreGui()
 
-    args << "-input_file_list"
-    args << tmpFile.fileName()
-    for b in lstBands:
-      args << "-b"
-      args << b
-    args << self.leOutput.text()
+    if self.chkAddToCanvas.isChecked():
+      newLayer = QgsRasterLayer(self.outputFileName, QFileInfo(self.outputFileName).baseName())
 
-    self.process.start("/opt/gdal/bin/gdalbuildvrt", args, QIODevice.ReadOnly)
-
-    if self.process.waitForFinished(-1):
-      tmpFile.close()
-
-    # then build overviews for tiles
-    for i in lstMosaic:
-      args.clear()
-      for b in lstBands:
-        args << "-b"
-        args << b
-      args << i
-      args << "2 4 8 16"
-      self.process.start("/opt/gdal/bin/gdaladdo", args, QIODevice.ReadOnly)
-
-      if self.process.waitForFinished(-1):
-        pass
-
-    # and whole mosaic
-    #args.clear()
-    #args << self.leOutput.text()
-    #args << "8 16 32 64 128 256 512 1024 2018"
-    #self.process.start("/opt/gdal/bin/gdaladdo", args, QIODevice.ReadOnly)
-
-    #if self.process.waitForFinished(-1):
-    #  print "Finished"
-
-  def processError(self, error):
-    if error == QProcess.FailedToStart:
-      print "Failed to start"
-    elif error == QProcess.Crashed:
-      print "Crashed"
-    else:
-      print "Unknown error"
-
-  def processFinished(self, exitCode, status):
-    if status == QProcess.CrashExit:
-      print "crash"
-
-    msg = QString.fromLocal8Bit(self.process.readAllStandardError())
-    if msg.isEmpty():
-      msg = QString.fromLocal8Bit(self.process.readAllStandardOutput())
-
-    print unicode(msg)
-
-    self.process.kill()
-
-  def __setProcessEnvironment(self, process):
-    envVars = {
-               "GDAL_FILENAME_IS_UTF8" : "NO",
-               "LD_LIBRARY_PATH" : "/opt/gdal/lib"
-              }
-
-    sep = os.pathsep
-
-    for name, value in envVars.iteritems():
-      if value is None or value == "":
-        continue
-
-      envval = os.getenv(name)
-      if envval is None or envval == "":
-        envval = unicode(value)
-      elif not QString(envval).split(sep).contains(value, Qt.CaseInsensitive):
-        envval += "%s%s" % (sep, unicode(value))
+      if newLayer.isValid():
+        QgsMapLayerRegistry.instance().addMapLayers([newLayer])
       else:
-        envval = None
+        QMessageBox.warning(self,
+                            self.tr("Can't open file"),
+                            self.tr("Error loading output VRT-file:\n%1").arg(unicode(self.outputFileName))
+                           )
 
-      if envval is not None:
-        os.putenv(name, envval)
+  def processInterrupted( self ):
+    self.restoreGui()
+
+  def stopProcessing( self ):
+    if self.workThread != None:
+      self.workThread.stop()
+      self.workThread = None
+
+  def restoreGui(self):
+    self.progressBar.setFormat("%p%")
+    self.progressBar.setRange(0, 1)
+    self.progressBar.setValue(0)
+
+    self.buttonBox.rejected.connect(self.reject)
+    self.btnClose.clicked.disconnect(self.stopProcessing)
+    self.btnClose.setText(self.tr("Close"))
+    self.btnOk.setEnabled(True)

@@ -52,16 +52,17 @@ class MosaicThread(QThread):
     self.directories = directories
     self.outputFile = fileName
 
-    self.process = QProcess(self)
-    self.__setProcessEnvironment(self.process)
-
-    self.process.error.connect(self.onError)
-    self.process.finished.connect(self.onFinished)
 
   def run(self):
     self.mutex.lock()
     self.stopMe = 0
     self.mutex.unlock()
+
+    self.process = QProcess(self)
+    self.__setProcessEnvironment(self.process)
+
+    self.process.error.connect(self.onError)
+    self.process.finished.connect(self.onFinished)
 
     lstFiles = []
     lstBands = []
@@ -74,7 +75,7 @@ class MosaicThread(QThread):
         filePath = os.path.join(unicode(d), unicode(v["file"]))
         lstFiles.append(filePath)
 
-    self.rangeChanged.emit(len(lstFiles))
+    self.rangeChanged.emit(len(lstFiles) + 2)
 
     # prepare and call GDAL commands
     self.createPyramidsForTiles(lstFiles, lstBands)
@@ -147,9 +148,8 @@ class MosaicThread(QThread):
     self.mutex.unlock()
     if s == 1:
       self.interrupted = True
-      break
 
-  def createPyramidsForMosaic():
+  def createPyramidsForMosaic(self):
     args = QStringList()
     args << f
     args << "8" << "16" << "32" << "64" << "128" << "256" << "512" << "1024" << "2048"
@@ -164,7 +164,6 @@ class MosaicThread(QThread):
     self.mutex.unlock()
     if s == 1:
       self.interrupted = True
-      break
 
   def onError(self, error):
     self.processError.emit()
