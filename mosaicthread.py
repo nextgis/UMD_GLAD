@@ -52,13 +52,12 @@ class MosaicThread(QThread):
     self.directories = directories
     self.outputFile = fileName
 
-
   def run(self):
     self.mutex.lock()
     self.stopMe = 0
     self.mutex.unlock()
 
-    self.process = QProcess(self)
+    self.process = QProcess()
     self.__setProcessEnvironment(self.process)
 
     self.process.error.connect(self.onError)
@@ -151,7 +150,7 @@ class MosaicThread(QThread):
 
   def createPyramidsForMosaic(self):
     args = QStringList()
-    args << f
+    args << self.outputFile
     args << "8" << "16" << "32" << "64" << "128" << "256" << "512" << "1024" << "2048"
 
     self.process.start("/opt/gdal/bin/gdaladdo", args, QIODevice.ReadOnly)
