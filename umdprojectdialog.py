@@ -49,7 +49,6 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     self.gbGeneral.setSettings(self.settings)
     self.gbProjection.setSettings(self.settings)
     self.gbProcessing.setSettings(self.settings)
-    self.gbMetrics.setSettings(self.settings)
 
     self.btnOk = self.buttonBox.button(QDialogButtonBox.Ok)
     self.btnClose = self.buttonBox.button(QDialogButtonBox.Close)
@@ -60,10 +59,6 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     self.manageGui()
 
   def manageGui(self):
-    # TODO:
-    #  - load metrics from file (seems not necessary?)
-    #  - load projections from file (need projections file!)
-
     projDir = unicode(self.settings.value("lastProjectDir", ".").toString())
     if os.path.exists(os.path.join(projDir, "settings.ini")):
         self.leProjectDir.setText(projDir)
