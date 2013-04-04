@@ -29,12 +29,70 @@ from PyQt4.QtCore import *
 
 from qgis.core import *
 
+HISTOGRAM_BINS = 256
+
 class HistogramEq(QgsRasterInterface):
+  myHistogram = None
+
   def bandCount(self):
     return self.input().bandCount()
 
   def dataType(self, bandNo):
     return self.input().dataType(bandNo)
 
+  #~ def setHistogram(self, histogram):
+    #~ self.myHistogram = histogram
+#~
+  #~ def setRasterXSize(self, xSize):
+    #~ self.rasterXSize = xSize
+#~
+  #~ def setRasterYSize(self, ySize):
+    #~ self.rasterYSize = ySize
+
+  def prepare(self):
+    self.myHistogram = self.histogram(1,
+                                      HISTOGRAM_BINS,
+                                      float("nan"),
+                                      float("nan"),
+                                      QgsRectangle(),
+                                      0,
+                                      False
+                                      )
+    print "self.myHistogram prepare", self.myHistogram
+
+    if dataType() != QGis.Byte:
+      self.binXStep = (self.myHistogram.maximum - self.myHistogram.minimum) / HISTOGRAM_BINS
+      self.binX = self.myHistogram.minimum + self.binXStep / 2.0
+    else:
+      self.binXStep = 1
+      self.binX = 0
+
+    self.histLUT = dict()
+    for i in xrange(HISTOGRAM_BINS):
+      binValue = self.myHistogram.histogramVector.at(i)
+      self.histLUT[bixX] = binValue
+      self.binX += self.binXStep
+
+    self.cdfLUT = dict()
+    for k, v in self.histLUT.iteritems():
+      for i in xrange(k):
+        self.cdfLUT[k] += self.histLUT[i]
+
+    self.minValue = min(self.cdfLUT.values())
+    self.pixelCount = self.input().xSize() * self.input().ySize() - self.minValue
+
   def block(self, bandNo, extent, width, height):
-    pass
+    print "self.myHistogram", self.myHistogram
+    if self.myHistogram is None:
+      print "prepare"
+      self.prepare()
+    print "self.myHistogram after", self.myHistogram
+
+    data = self.input().block(bandNo, extent, width, height)
+
+    #~ for i in range(0, width * height):
+      #~ v = data.value(i)
+      #~ nv = round((self.cdfLUT[v] - self.minValue) * 255 / self.pixelCount)
+      #~ data.setValue(i, nv)
+
+    return data

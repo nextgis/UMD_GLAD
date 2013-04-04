@@ -33,6 +33,7 @@ from qgis.core import *
 import umdprojectdialog
 import umdmosaicdialog
 import aboutdialog
+import histogrameq
 
 import resources_rc
 
@@ -144,11 +145,13 @@ class UmdPlugin:
       return
 
     pipe = layer.pipe()
-    if pipe.size() != 6:
-      # add to pipe
-      pass
+    if pipe.size() == 6:
+      he = histogrameq.HistogramEq()
+      pipe.insert(6, he)
+      #pass
     else:
       # remove from pipe
+      #pipe.remove(pipe.last())
       pass
 
   def about(self):
