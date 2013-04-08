@@ -108,9 +108,8 @@ class UmdPlugin:
     self.actionAbout.triggered.connect(self.about)
 
   def unload(self):
-    self.iface.unregisterMainWindowAction(self.actionNew)
-
     self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionNew)
+    self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionMosaic)
     self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionAbout)
 
     del self.toolBar
