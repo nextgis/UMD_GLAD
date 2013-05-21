@@ -120,10 +120,9 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
 
     self.__writeConfigFile(cfg, cfgPath)
 
-    # TODO: don't create shapes if existing project opened
     layers = QgsMapLayerRegistry.instance().mapLayers()
     layersFound = False
-    for layer in layers:
+    for layerName, layer in layers.iteritems():
       if layer.type() == QgsMapLayer.VectorLayer and layer.name() in ["target", "background"]:
         layersFound = True
 
