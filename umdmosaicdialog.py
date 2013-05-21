@@ -79,7 +79,6 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
       names = QStringList() << "*.vrt" << "*.VRT"
       vrts = QDir(root).entryList(names, QDir.Files)
-      #print "FOUND VRTs", unicode(vrts.join(" "))
       for vrt in vrts:
         fName = os.path.normpath(os.path.join(root,unicode(vrt)))
         f = QFile(fName)
