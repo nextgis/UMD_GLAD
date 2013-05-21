@@ -103,7 +103,7 @@ class MosaicThread(QThread):
       args << f
       args << "2" << "4" << "8" << "16"
 
-      self.process.start("/opt/gdal/bin/gdaladdo", args, QIODevice.ReadOnly)
+      self.process.start("gdaladdo", args, QIODevice.ReadOnly)
 
       if self.process.waitForFinished(-1):
         args.clear()
@@ -137,7 +137,7 @@ class MosaicThread(QThread):
       args << b
     args << self.outputFile
 
-    self.process.start("/opt/gdal/bin/gdalbuildvrt", args, QIODevice.ReadOnly)
+    self.process.start("gdalbuildvrt", args, QIODevice.ReadOnly)
 
     if self.process.waitForFinished(-1):
       self.updateProgress.emit()
@@ -153,7 +153,7 @@ class MosaicThread(QThread):
     args << self.outputFile
     args << "8" << "16" << "32" << "64" << "128" << "256" << "512" << "1024" << "2048"
 
-    self.process.start("/opt/gdal/bin/gdaladdo", args, QIODevice.ReadOnly)
+    self.process.start("gdaladdo", args, QIODevice.ReadOnly)
 
     if self.process.waitForFinished(-1):
       self.updateProgress.emit()
@@ -172,8 +172,7 @@ class MosaicThread(QThread):
 
   def __setProcessEnvironment(self, process):
     envVars = {
-               "GDAL_FILENAME_IS_UTF8" : "NO",
-               "LD_LIBRARY_PATH" : "/opt/gdal/lib"
+               "GDAL_FILENAME_IS_UTF8" : "NO"
               }
 
     sep = os.pathsep
