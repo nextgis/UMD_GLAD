@@ -78,8 +78,10 @@ class MosaicThread(QThread):
 
     # prepare and call GDAL commands
     self.createPyramidsForTiles(lstFiles, lstBands)
-    self.createMosaic(lstFiles, lstBands)
-    self.createPyramidsForMosaic()
+    if not self.interrupted:
+      self.createMosaic(lstFiles, lstBands)
+    if not self.interrupted:
+      self.createPyramidsForMosaic()
 
     if not self.interrupted:
       self.processFinished.emit()
