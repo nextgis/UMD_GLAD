@@ -26,7 +26,6 @@
 #******************************************************************************
 
 import os
-import ConfigParser
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -206,6 +205,9 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
                                )
       if res == QMessageBox.No:
         return
+
+    self.plugin.metrics = metrics
+    self.plugin.dirs = self.usedDirs
 
     self.workThread = mosaicthread.MosaicThread(metrics,
                                                 self.usedDirs,

@@ -32,6 +32,7 @@ from qgis.core import *
 
 import umdprojectdialog
 import umdmosaicdialog
+import umdclassificationdialog
 import aboutdialog
 
 import resources_rc
@@ -66,6 +67,9 @@ class UmdPlugin:
       self.translator.load(self.localePath)
       QCoreApplication.installTranslator(self.translator)
 
+    self.metrics = None
+    self.dirs = None
+
   def initGui(self):
     if int(self.QgisVersion) < 10900:
       qgisVersion = str(self.QgisVersion[ 0 ]) + "." + str(self.QgisVersion[ 2 ]) + "." + str(self.QgisVersion[ 3 ])
@@ -83,27 +87,34 @@ class UmdPlugin:
     self.actionMosaic.setIcon(QIcon(":/icons/mosaic.png"))
     self.actionMosaic.setWhatsThis("Create mosaic from tiles")
 
+    self.actionClassification = QAction(QCoreApplication.translate("UMD", "Run classification"), self.iface.mainWindow())
+    #self.actionClassification.setIcon(QIcon(":/icons/mosaic.png"))
+    self.actionClassification.setWhatsThis("Run classification process")
+
     self.actionAbout = QAction(QCoreApplication.translate("UMD", "About UMD..."), self.iface.mainWindow())
     self.actionAbout.setIcon(QIcon(":/icons/about.png"))
     self.actionAbout.setWhatsThis("About UMD")
 
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionNew)
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionMosaic)
+    self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionClassification)
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionAbout)
 
     self.toolBar = self.iface.addToolBar(QCoreApplication.translate("UMD", "UMD tools"))
     self.toolBar.setObjectName("UMD tools")
     self.toolBar.addAction(self.actionNew)
     self.toolBar.addAction(self.actionMosaic)
-    self.toolBar.addAction(self.actionHistEq)
+    self.toolBar.addAction(self.actionClassification)
 
     self.actionNew.triggered.connect(self.newProject)
     self.actionMosaic.triggered.connect(self.createMosaic)
+    self.actionClassification.triggered.connect(self.runClassification)
     self.actionAbout.triggered.connect(self.about)
 
   def unload(self):
     self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionNew)
     self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionMosaic)
+    self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionClassification)
     self.iface.removePluginMenu(QCoreApplication.translate("UMD", "UMD"), self.actionAbout)
 
     del self.toolBar
@@ -115,6 +126,11 @@ class UmdPlugin:
 
   def createMosaic(self):
     d = umdmosaicdialog.UmdMosaicDialog(self)
+    d.show()
+    d.exec_()
+
+  def runClassification(self):
+    d = umdclassificationdialog.UmdClassificationDialog(self, self.metrics, self.dirs)
     d.show()
     d.exec_()
 

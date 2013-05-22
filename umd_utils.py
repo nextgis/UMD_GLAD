@@ -37,3 +37,12 @@ def createPolygonShapeFile(filePath, crs):
   print filePath
   writer = QgsVectorFileWriter(filePath, "utf-8", fields, QGis.WKBPolygon, crs)
   del writer
+
+def getVectorLayerByName(layerName):
+  layerMap = QgsMapLayerRegistry.instance().mapLayers()
+  for name, layer in layerMap.iteritems():
+    if layer.type() == QgsMapLayer.VectorLayer and layer.name() == layerName:
+      if layer.isValid():
+        return layer
+      else:
+        return None

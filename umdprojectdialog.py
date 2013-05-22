@@ -192,5 +192,11 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
       cfg.set("General", "tilebuffer", unicode(self.spnTileBuffer.value()))
       cfg.set("General", "pixelsize", unicode(self.spnPixelSize.value()))
 
+      #~ if not cfg.has_section("Layers"):
+        #~ cfg.add_section("Layers")
+#~
+      #~ cfg.set("Layers", "target", unicode(self.leProjectName.text()))
+      #~ cfg.set("Layers", "background", unicode(self.spnTilesThreads.value()))
+
       with open(filePath, 'wb') as f:
         cfg.write(f)
