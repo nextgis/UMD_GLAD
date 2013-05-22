@@ -33,7 +33,6 @@ from qgis.core import *
 import umdprojectdialog
 import umdmosaicdialog
 import aboutdialog
-import histogrameq
 
 import resources_rc
 
@@ -84,10 +83,6 @@ class UmdPlugin:
     self.actionMosaic.setIcon(QIcon(":/icons/mosaic.png"))
     self.actionMosaic.setWhatsThis("Create mosaic from tiles")
 
-    self.actionHistEq = QAction(QCoreApplication.translate("UMD", "Histogram equalization"), self.iface.mainWindow())
-    self.actionHistEq.setIcon(QIcon(":/icons/histogram.png"))
-    self.actionHistEq.setWhatsThis("Apply histogram equalization to image")
-
     self.actionAbout = QAction(QCoreApplication.translate("UMD", "About UMD..."), self.iface.mainWindow())
     self.actionAbout.setIcon(QIcon(":/icons/about.png"))
     self.actionAbout.setWhatsThis("About UMD")
@@ -104,7 +99,6 @@ class UmdPlugin:
 
     self.actionNew.triggered.connect(self.newProject)
     self.actionMosaic.triggered.connect(self.createMosaic)
-    self.actionHistEq.triggered.connect(self.histogramEqualization)
     self.actionAbout.triggered.connect(self.about)
 
   def unload(self):
@@ -123,35 +117,6 @@ class UmdPlugin:
     d = umdmosaicdialog.UmdMosaicDialog(self)
     d.show()
     d.exec_()
-
-  def histogramEqualization(self):
-    layer = self.iface.mapCanvas().currentLayer()
-
-    if layer is None:
-      self.iface.messageBar().pushMessage(QCoreApplication.translate("UMD", "No layer"),
-                                          QCoreApplication.translate("UMD", "Please select raster layer"),
-                                          QgsMessageBar.INFO,
-                                          self.iface.messageTimeout()
-                                         )
-      return
-
-    if layer.type() != QgsMapLayer.RasterLayer:
-      self.iface.messageBar().pushMessage(QCoreApplication.translate("UMD", "Invalid layer type"),
-                                          QCoreApplication.translate("UMD", "Please select raster layer"),
-                                          QgsMessageBar.INFO,
-                                          self.iface.messageTimeout()
-                                         )
-      return
-
-    pipe = layer.pipe()
-    if pipe.size() == 6:
-      he = histogrameq.HistogramEq()
-      pipe.insert(6, he)
-      #pass
-    else:
-      # remove from pipe
-      #pipe.remove(pipe.last())
-      pass
 
   def about(self):
     d = aboutdialog.AboutDialog()
