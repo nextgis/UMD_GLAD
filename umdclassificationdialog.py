@@ -64,6 +64,8 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     QDialog.reject(self)
 
   def accept(self):
+    # TODO: check for necessary vector layers
+
     maskFile = self.leMaskFile.text()
     if maskFile.isEmpty():
       QMessageBox.warning(self,
@@ -98,7 +100,8 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
 
     self.workThread.start()
 
-  def setProgressRange(self, maxValue):
+  def setProgressRange(self, message, maxValue):
+    self.progressBar.setFormat(message)
     self.progressBar.setRange(0, maxValue)
 
   def updateProgress(self):
@@ -158,10 +161,13 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     fileName = QFileDialog.getSaveFileName(self,
                                            self.tr("Save file"),
                                            lastDir,
-                                           self.tr("GeoTIFF (*.tif *.tiff *.TIF *.TIFF)")
+                                           self.tr("Virtual raster (*.vrt *.VRT)")
                                           )
     if fileName.isEmpty():
       return
+
+    if not fileName.toLower().endsWith(".vrt"):
+      filename += ".vrt"
 
     if senderName == "btnSelectMask":
       self.leMaskFile.setText(fileName)

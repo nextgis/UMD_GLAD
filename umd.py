@@ -81,7 +81,7 @@ class UmdPlugin:
 
     self.actionNew = QAction(QCoreApplication.translate("UMD", "Create new project"), self.iface.mainWindow())
     self.actionNew.setIcon(QIcon(":/icons/umd.png"))
-    self.actionNew.setWhatsThis("Classification for UMD")
+    self.actionNew.setWhatsThis("Create new or edit current UMD project")
 
     self.actionMosaic = QAction(QCoreApplication.translate("UMD", "Create mosaic"), self.iface.mainWindow())
     self.actionMosaic.setIcon(QIcon(":/icons/mosaic.png"))

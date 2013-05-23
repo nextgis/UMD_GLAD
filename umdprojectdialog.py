@@ -75,7 +75,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
         self.spnTileBuffer.setValue(cfg.getint("General", "tilebuffer"))
         self.spnPixelSize.setValue(cfg.getint("General", "pixelsize"))
 
-        QgsProject.instance().read(QFileInfo(os.path.join(projDir, unicode(self.leProjectName.text()))))
+        #QgsProject.instance().read(QFileInfo(os.path.join(projDir, unicode(self.leProjectName.text()))))
 
   def reject(self):
     QDialog.reject(self)
