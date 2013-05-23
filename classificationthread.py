@@ -36,7 +36,7 @@ from qgis.core import *
 
 import umd_utils as utils
 
-class RasterizeThread(QThread):
+class ClassificationThread(QThread):
   rangeChanged = pyqtSignal(str, int)
   updateProgress = pyqtSignal()
 

@@ -26,7 +26,6 @@
 #******************************************************************************
 
 import os
-import ConfigParser
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -34,7 +33,7 @@ from PyQt4.QtXml import *
 
 from qgis.core import *
 
-import rasterizethread
+import classificationthread
 
 from ui_umdclassificationdialogbase import Ui_Dialog
 
@@ -81,11 +80,11 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
                          )
       return
 
-    self.workThread = rasterizethread.RasterizeThread(self.metrics,
-                                                      self.usedDirs,
-                                                      maskFile,
-                                                      outputFile
-                                                     )
+    self.workThread = classificationthread.ClassificationThread(self.metrics,
+                                                                self.usedDirs,
+                                                                maskFile,
+                                                                outputFile
+                                                               )
 
     self.workThread.rangeChanged.connect(self.setProgressRange)
     self.workThread.updateProgress.connect(self.updateProgress)
