@@ -78,7 +78,7 @@ class ClassificationThread(QThread):
     # prepare and call GDAL commands
     self.createMaskTile(lstFiles)
     self.createMosaic(lstFiles, lstBands)
-    #self.createPyramidsForMosaic()
+    self.createPyramidsForMosaic()
 
     # TODO: run classification
 
