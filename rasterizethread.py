@@ -37,14 +37,14 @@ from qgis.core import *
 import umd_utils as utils
 
 class RasterizeThread(QThread):
-  rangeChanged = pyqtSignal(int)
+  rangeChanged = pyqtSignal(str, int)
   updateProgress = pyqtSignal()
 
   processError = pyqtSignal()
   processFinished = pyqtSignal()
   processInterrupted = pyqtSignal()
 
-  def __init__(self, metrics, directories, fileName):
+  def __init__(self, metrics, directories, maskFile, outputFile):
     QThread.__init__(self, QThread.currentThread())
     self.mutex = QMutex()
     self.stopMe = 0
@@ -52,7 +52,8 @@ class RasterizeThread(QThread):
 
     self.metrics = metrics
     self.directories = directories
-    self.outputFile = fileName
+    self.maskFile = maskFile
+    self.outputFile = outputFile
 
   def run(self):
     self.mutex.lock()
@@ -72,12 +73,14 @@ class RasterizeThread(QThread):
         filePath = os.path.join(unicode(d), unicode(v["file"]))
         lstFiles.append(filePath)
 
-    self.rangeChanged.emit(len(lstFiles) * 3 + 2)
+    self.rangeChanged.emit("Rasterization %p%", len(lstFiles) * 3 + 2)
 
     # prepare and call GDAL commands
     self.createMaskTile(lstFiles)
-    #self.createMosaic(lstFiles, lstBands)
+    self.createMosaic(lstFiles, lstBands)
     #self.createPyramidsForMosaic()
+
+    # TODO: run classification
 
     if not self.interrupted:
       self.processFinished.emit()
@@ -104,7 +107,7 @@ class RasterizeThread(QThread):
 
       ds = None
 
-      outPath = os.path.join(unicode(QFileInfo(f).absoluteDir().absolutePath()), "mask.tif")
+      outPath = os.path.join(unicode(QFileInfo(f).absoluteDir().absolutePath()), QFileInfo(self.maskFile).baseName())
 
       # rasterize target
       args << "-burn" << "1"
@@ -135,7 +138,7 @@ class RasterizeThread(QThread):
 
       # build pyramids
       args.clear()
-      args << f
+      args << outPath
       args << "2" << "4" << "8" << "16"
 
       self.process.start("gdaladdo", args, QIODevice.ReadOnly)
@@ -158,9 +161,10 @@ class RasterizeThread(QThread):
       self.interrupted = True
       return
 
+    baseName = QFileInfo(self.maskFile).baseName()
     out = QTextStream(tmpFile)
     for f in lstFiles:
-      out << os.path.join(unicode(QFileInfo(f).absoluteDir().absolutePath()), "mask.tif") << "\n"
+      out << os.path.join(unicode(QFileInfo(f).absoluteDir().absolutePath()), baseName) << "\n"
 
     tmpFile.close()
 

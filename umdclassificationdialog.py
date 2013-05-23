@@ -48,6 +48,9 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.metrics = metrics
     self.usedDirs = dirs
 
+    self.btnSelectMask.clicked.connect(self.selectFile)
+    self.btnSelectOutput.clicked.connect(self.selectFile)
+
     self.btnOk = self.buttonBox.button(QDialogButtonBox.Ok)
     self.btnClose = self.buttonBox.button(QDialogButtonBox.Close)
 
@@ -62,9 +65,26 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     QDialog.reject(self)
 
   def accept(self):
+    maskFile = self.leMaskFile.text()
+    if maskFile.isEmpty():
+      QMessageBox.warning(self,
+                          self.tr("File not specified"),
+                          self.tr("Mask file is not set. Please specify correct filename and try again")
+                         )
+      return
+
+    outputFile = self.leMaskFile.text()
+    if outputFile.isEmpty():
+      QMessageBox.warning(self,
+                          self.tr("File not specified"),
+                          self.tr("Output file is not set. Please specify correct filename and try again")
+                         )
+      return
+
     self.workThread = rasterizethread.RasterizeThread(self.metrics,
                                                       self.usedDirs,
-                                                      "mask.tif"
+                                                      maskFile,
+                                                      outputFile
                                                      )
 
     self.workThread.rangeChanged.connect(self.setProgressRange)
@@ -89,16 +109,29 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.stopProcessing()
     self.restoreGui()
 
-    #~ if self.chkAddToCanvas.isChecked():
-      #~ newLayer = QgsRasterLayer(self.outputFileName, QFileInfo(self.outputFileName).baseName())
-#~
-      #~ if newLayer.isValid():
-        #~ QgsMapLayerRegistry.instance().addMapLayers([newLayer])
-      #~ else:
-        #~ QMessageBox.warning(self,
-                            #~ self.tr("Can't open file"),
-                            #~ self.tr("Error loading output VRT-file:\n%1").arg(unicode(self.outputFileName))
-                           #~ )
+    if self.chkAddMask.isChecked():
+      maskFile = self.leMaskFile.text()
+      newLayer = QgsRasterLayer(maskFile, QFileInfo(maskFile).baseName())
+
+      if newLayer.isValid():
+        QgsMapLayerRegistry.instance().addMapLayers([newLayer])
+      else:
+        QMessageBox.warning(self,
+                            self.tr("Can't open file"),
+                            self.tr("Error loading output VRT-file:\n%1").arg(unicode(maskFile))
+                           )
+
+    if self.chkAddOutput.isChecked():
+      outputFile = self.leOutputFile.text()
+      newLayer = QgsRasterLayer(outputFile, QFileInfo(outputFile).baseName())
+
+      if newLayer.isValid():
+        QgsMapLayerRegistry.instance().addMapLayers([newLayer])
+      else:
+        QMessageBox.warning(self,
+                            self.tr("Can't open file"),
+                            self.tr("Error loading output VRT-file:\n%1").arg(unicode(outputFile))
+                           )
 
   def processInterrupted( self ):
     self.restoreGui()
@@ -117,3 +150,23 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.btnClose.clicked.disconnect(self.stopProcessing)
     self.btnClose.setText(self.tr("Close"))
     self.btnOk.setEnabled(True)
+
+  def selectFile(self):
+    senderName = self.sender().objectName()
+
+    settings = QSettings("NextGIS", "UMD")
+    lastDir = settings.value("lastRasterDir", ".").toString()
+    fileName = QFileDialog.getSaveFileName(self,
+                                           self.tr("Save file"),
+                                           lastDir,
+                                           self.tr("GeoTIFF (*.tif *.tiff *.TIF *.TIFF)")
+                                          )
+    if fileName.isEmpty():
+      return
+
+    if senderName == "btnSelectMask":
+      self.leMaskFile.setText(fileName)
+    elif senderName == "btnSelectOutput":
+      self.leOutputFile.setText(fileName)
+
+    settings.setValue("lastRasterDir", QFileInfo(fileName).absoluteDir().absolutePath())
