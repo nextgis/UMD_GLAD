@@ -77,8 +77,10 @@ class ClassificationThread(QThread):
 
     # prepare and call GDAL commands
     self.createMaskTile(lstFiles)
-    self.createMosaic(lstFiles, lstBands)
-    self.createPyramidsForMosaic()
+    if not self.interrupted:
+      self.createMosaic(lstFiles)
+    if not self.interrupted:
+      self.createPyramidsForMosaic()
 
     # TODO: run classification
 
@@ -154,7 +156,7 @@ class ClassificationThread(QThread):
         self.interrupted = True
         break
 
-  def createMosaic(self, lstFiles, lstBands):
+  def createMosaic(self, lstFiles):
     tmpFile = QTemporaryFile()
     if not tmpFile.open(QIODevice.WriteOnly | QIODevice.Text):
       print "I/O error"
