@@ -109,12 +109,12 @@ class ClassificationThread(QThread):
 
       ds = None
 
-      outPath = os.path.join(unicode(QFileInfo(f).absoluteDir().absolutePath()), QFileInfo(self.maskFile).baseName())
+      outPath = os.path.join(unicode(QFileInfo(f).absoluteDir().absolutePath()), unicode(QFileInfo(self.maskFile).baseName()) + ".tif")
 
       # rasterize target
       args << "-burn" << "1"
       args << "-te" << unicode(extent[0]) << unicode(extent[1]) << unicode(extent[2]) << unicode(extent[3])
-      args << "-ts" << xSize << ySize
+      args << "-ts" << unicode(xSize) << unicode(ySize)
       args << "-l" << "target"
       args << unicode(utils.getVectorLayerByName("target").source())
       args << outPath
@@ -163,7 +163,7 @@ class ClassificationThread(QThread):
       self.interrupted = True
       return
 
-    baseName = QFileInfo(self.maskFile).baseName()
+    baseName = unicode(QFileInfo(self.maskFile).baseName()) + ".tif"
     out = QTextStream(tmpFile)
     for f in lstFiles:
       out << os.path.join(unicode(QFileInfo(f).absoluteDir().absolutePath()), baseName) << "\n"
