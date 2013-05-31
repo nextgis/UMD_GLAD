@@ -1,6 +1,6 @@
 [general]
 name=UMD
-description=Classification for UMD
+description=Classification environment for UMD
 category=Plugins
 version=0.0.1
 qgisMinimumVersion=1.9.0
@@ -12,9 +12,9 @@ icon=icons/umd.png
 
 tags=raster,analysis,land cover
 
-homepage=http://hub.qgis.org/projects/umd
-tracker=http://hub.qgis.org/projects/umd/issues
-repository=http://svn.gis-lab.info/umd
+homepage=
+tracker=
+repository=
 
 experimental=True
 deprecated=False

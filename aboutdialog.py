@@ -25,12 +25,13 @@
 #
 #******************************************************************************
 
+import os
+import ConfigParser
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 from ui_aboutdialogbase import Ui_Dialog
-
-from __init__ import version
 
 import resources_rc
 
@@ -41,8 +42,12 @@ class AboutDialog(QDialog, Ui_Dialog):
 
     self.btnHelp = self.buttonBox.button(QDialogButtonBox.Help)
 
+    cfg = ConfigParser.SafeConfigParser()
+    cfg.read(os.path.join(os.path.dirname(__file__), "metadata.txt"))
+    version = cfg.get("general", "version")
+
     self.lblLogo.setPixmap(QPixmap(":/icons/umd.png"))
-    self.lblVersion.setText(self.tr("Version: %1").arg(version()))
+    self.lblVersion.setText(self.tr("Version: %1").arg(version))
     doc = QTextDocument()
     doc.setHtml(self.getAboutText())
     self.textBrowser.setDocument(doc)

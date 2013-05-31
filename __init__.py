@@ -25,30 +25,6 @@
 #
 #******************************************************************************
 
-def name():
-  return "UMD"
-
-def description():
-  return "Classification for UMD"
-
-def category():
-  return "Plugins"
-
-def version():
-  return "0.0.1"
-
-def qgisMinimumVersion():
-  return "1.9.0"
-
-def author():
-  return "NextGIS"
-
-def email():
-  return "info@nextgis.org"
-
-def icon():
-  return "icons/umd.png"
-
 def classFactory( iface ):
   from umd import UmdPlugin
   return UmdPlugin( iface )
