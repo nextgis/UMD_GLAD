@@ -125,6 +125,13 @@ class ClassificationThread(QThread):
         args.clear()
         self.updateProgress.emit()
 
+      self.mutex.lock()
+      s = self.stopMe
+      self.mutex.unlock()
+      if s == 1:
+        self.interrupted = True
+        break
+
       # rasterize background
       args.clear()
       args << "-burn" << "2"
@@ -137,6 +144,13 @@ class ClassificationThread(QThread):
       if self.process.waitForFinished(-1):
         args.clear()
         self.updateProgress.emit()
+
+      self.mutex.lock()
+      s = self.stopMe
+      self.mutex.unlock()
+      if s == 1:
+        self.interrupted = True
+        break
 
       # build pyramids
       args.clear()
@@ -203,9 +217,11 @@ class ClassificationThread(QThread):
       self.interrupted = True
 
   def onError(self, error):
+    print "process error", error
     self.processError.emit()
 
   def onFinished(self, exitCode, status):
+    print "finished", exitCode, status
     self.processFinished.emit()
 
   def __setProcessEnvironment(self, process):
@@ -232,8 +248,8 @@ class ClassificationThread(QThread):
 
   def __getExtent(self, xSize, ySize, gt):
     xMin = gt[0] + gt[1] * 0.0 + gt[2] * 0.0
-    yMin = gt[3] + gt[4] * 0.0 + gt[5] * 0.0
+    yMax = gt[3] + gt[4] * 0.0 + gt[5] * 0.0
     xMax = gt[0] + gt[1] * xSize + gt[2] * ySize
-    yMax = gt[3] + gt[4] * xSize + gt[5] * ySize
+    yMin = gt[3] + gt[4] * xSize + gt[5] * ySize
 
     return [xMin, yMin, xMax, yMax]

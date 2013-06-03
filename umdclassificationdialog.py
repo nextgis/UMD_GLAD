@@ -167,7 +167,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       return
 
     if not fileName.toLower().endsWith(".vrt"):
-      filename += ".vrt"
+      fileName += ".vrt"
 
     if senderName == "btnSelectMask":
       self.leMaskFile.setText(fileName)
