@@ -67,9 +67,6 @@ class UmdPlugin:
       self.translator.load(self.localePath)
       QCoreApplication.installTranslator(self.translator)
 
-    self.metrics = None
-    self.dirs = None
-
   def initGui(self):
     if int(self.QgisVersion) < 10900:
       qgisVersion = str(self.QgisVersion[ 0 ]) + "." + str(self.QgisVersion[ 2 ]) + "." + str(self.QgisVersion[ 3 ])
@@ -130,7 +127,7 @@ class UmdPlugin:
     d.exec_()
 
   def runClassification(self):
-    d = umdclassificationdialog.UmdClassificationDialog(self, self.metrics, self.dirs)
+    d = umdclassificationdialog.UmdClassificationDialog(self)
     d.show()
     d.exec_()
 

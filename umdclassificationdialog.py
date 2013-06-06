@@ -26,6 +26,7 @@
 #******************************************************************************
 
 import os
+import ConfigParser
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -38,14 +39,22 @@ import classificationthread
 from ui_umdclassificationdialogbase import Ui_Dialog
 
 class UmdClassificationDialog(QDialog, Ui_Dialog):
-  def __init__(self, plugin, metrics, dirs):
+  def __init__(self, plugin):
     QDialog.__init__(self)
     self.setupUi(self)
 
     self.plugin = plugin
     self.iface = plugin.iface
-    self.metrics = metrics
-    self.usedDirs = dirs
+
+    settings = QSettings("NextGIS", "UMD")
+    projDir = unicode(settings.value("lastProjectDir", ".").toString())
+    cfgPath = os.path.join(projDir, "settings.ini")
+    if os.path.exists(cfgPath):
+      cfg = ConfigParser.SafeConfigParser()
+      cfg.read(cfgPath)
+
+      self.metrics = cfg.get("Metrics", "metrics").split(",")
+      self.usedDirs = cfg.get("Metrics", "tiles").split(",")
 
     self.btnSelectMask.clicked.connect(self.selectFile)
     self.btnSelectOutput.clicked.connect(self.selectFile)

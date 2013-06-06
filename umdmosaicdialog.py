@@ -26,6 +26,7 @@
 #******************************************************************************
 
 import os
+import ConfigParser
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -206,8 +207,21 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       if res == QMessageBox.No:
         return
 
-    self.plugin.metrics = metrics
-    self.plugin.dirs = self.usedDirs
+    settings = QSettings("NextGIS", "UMD")
+    projDir = unicode(settings.value("lastProjectDir", ".").toString())
+    cfgPath = os.path.join(projDir, "settings.ini")
+    if os.path.exists(cfgPath):
+      cfg = ConfigParser.SafeConfigParser()
+      cfg.read(cfgPath)
+
+      if not cfg.has_section("Metrics"):
+        cfg.add_section("Metrics")
+
+      cfg.set("Metrics", "tiles", ",".join(self.usedDirs))
+      cfg.set("Metrics", "metrics", ",".join(metrics.keys()))
+
+      with open(cfgPath, 'wb') as f:
+        cfg.write(f)
 
     self.workThread = mosaicthread.MosaicThread(metrics,
                                                 self.usedDirs,
