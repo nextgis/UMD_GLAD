@@ -96,14 +96,17 @@ class MosaicThread(QThread):
     QThread.wait(self)
 
   def createPyramidsForTiles(self, lstFiles, lstBands):
-    args = QStringList()
+    args = []
     for f in lstFiles:
       for band in lstBands:
-        args << "-b"
-        args << band
+        args.append("-b")
+        args.append(band)
 
-      args << f
-      args << "2" << "4" << "8" << "16"
+      args.append(f)
+      args.append("2")
+      args.append("4")
+      args.append("8")
+      args.append("16")
 
       self.process.start("gdaladdo", args, QIODevice.ReadOnly)
 
@@ -131,13 +134,13 @@ class MosaicThread(QThread):
 
     tmpFile.close()
 
-    args = QStringList()
-    args << "-input_file_list"
-    args << tmpFile.fileName()
+    args = []
+    args.append("-input_file_list")
+    args.append(tmpFile.fileName())
     for b in lstBands:
-      args << "-b"
-      args << b
-    args << self.outputFile
+      args.append("-b")
+      args.append(b)
+    args.append(self.outputFile)
 
     self.process.start("gdalbuildvrt", args, QIODevice.ReadOnly)
 
@@ -151,9 +154,17 @@ class MosaicThread(QThread):
       self.interrupted = True
 
   def createPyramidsForMosaic(self):
-    args = QStringList()
-    args << self.outputFile
-    args << "8" << "16" << "32" << "64" << "128" << "256" << "512" << "1024" << "2048"
+    args = []
+    args.append(self.outputFile)
+    args.append("8")
+    args.append("16")
+    args.append("32")
+    args.append("64")
+    args.append("128")
+    args.append("256")
+    args.append("512")
+    args.append("1024")
+    args.append("2048")
 
     self.process.start("gdaladdo", args, QIODevice.ReadOnly)
 
@@ -186,7 +197,7 @@ class MosaicThread(QThread):
       envval = os.getenv(name)
       if envval is None or envval == "":
         envval = unicode(value)
-      elif not QString(envval).split(sep).contains(value, Qt.CaseInsensitive):
+      elif value.lower() not in envval.lower().split(sep):
         envval += "%s%s" % (sep, unicode(value))
       else:
         envval = None

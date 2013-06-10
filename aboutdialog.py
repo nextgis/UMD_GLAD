@@ -47,7 +47,7 @@ class AboutDialog(QDialog, Ui_Dialog):
     version = cfg.get("general", "version")
 
     self.lblLogo.setPixmap(QPixmap(":/icons/umd.png"))
-    self.lblVersion.setText(self.tr("Version: %1").arg(version))
+    self.lblVersion.setText(self.tr("Version: %s") % (version))
     doc = QTextDocument()
     doc.setHtml(self.getAboutText())
     self.textBrowser.setDocument(doc)

@@ -47,7 +47,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.iface = plugin.iface
 
     settings = QSettings("NextGIS", "UMD")
-    projDir = unicode(settings.value("lastProjectDir", ".").toString())
+    projDir = unicode(settings.value("lastProjectDir", "."))
     cfgPath = os.path.join(projDir, "settings.ini")
     if os.path.exists(cfgPath):
       cfg = ConfigParser.SafeConfigParser()
@@ -76,7 +76,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     # TODO: check for necessary vector layers
 
     maskFile = self.leMaskFile.text()
-    if maskFile.isEmpty():
+    if maskFile == "":
       QMessageBox.warning(self,
                           self.tr("File not specified"),
                           self.tr("Mask file is not set. Please specify correct filename and try again")
@@ -84,7 +84,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       return
 
     outputFile = self.leMaskFile.text()
-    if outputFile.isEmpty():
+    if outputFile == "":
       QMessageBox.warning(self,
                           self.tr("File not specified"),
                           self.tr("Output file is not set. Please specify correct filename and try again")
@@ -129,7 +129,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       else:
         QMessageBox.warning(self,
                             self.tr("Can't open file"),
-                            self.tr("Error loading output VRT-file:\n%1").arg(unicode(maskFile))
+                            self.tr("Error loading output VRT-file:\n%s") % (unicode(maskFile))
                            )
 
     if self.chkAddOutput.isChecked():
@@ -141,13 +141,13 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       else:
         QMessageBox.warning(self,
                             self.tr("Can't open file"),
-                            self.tr("Error loading output VRT-file:\n%1").arg(unicode(outputFile))
+                            self.tr("Error loading output VRT-file:\n%s") % (unicode(outputFile))
                            )
 
-  def processInterrupted( self ):
+  def processInterrupted(self):
     self.restoreGui()
 
-  def stopProcessing( self ):
+  def stopProcessing(self):
     if self.workThread != None:
       self.workThread.stop()
       self.workThread = None
@@ -166,16 +166,16 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     senderName = self.sender().objectName()
 
     settings = QSettings("NextGIS", "UMD")
-    lastDir = settings.value("lastRasterDir", ".").toString()
+    lastDir = settings.value("lastRasterDir", ".")
     fileName = QFileDialog.getSaveFileName(self,
                                            self.tr("Save file"),
                                            lastDir,
                                            self.tr("Virtual raster (*.vrt *.VRT)")
                                           )
-    if fileName.isEmpty():
+    if fileName == "":
       return
 
-    if not fileName.toLower().endsWith(".vrt"):
+    if not fileName.lower().endswith(".vrt"):
       fileName += ".vrt"
 
     if senderName == "btnSelectMask":

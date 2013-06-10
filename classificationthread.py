@@ -89,7 +89,7 @@ class ClassificationThread(QThread):
     else:
       self.processInterrupted.emit()
 
-  def stop( self ):
+  def stop(self):
     self.mutex.lock()
     self.stopMe = 1
     self.mutex.unlock()
@@ -97,7 +97,7 @@ class ClassificationThread(QThread):
     QThread.wait(self)
 
   def createMaskTile(self, lstFiles):
-    args = QStringList()
+    args = []
     for f in lstFiles:
       # collect some data about tile
       ds = gdal.Open(f)
@@ -112,12 +112,20 @@ class ClassificationThread(QThread):
       outPath = os.path.join(unicode(QFileInfo(f).absoluteDir().absolutePath()), unicode(QFileInfo(self.maskFile).baseName()) + ".tif")
 
       # rasterize target
-      args << "-burn" << "1"
-      args << "-te" << unicode(extent[0]) << unicode(extent[1]) << unicode(extent[2]) << unicode(extent[3])
-      args << "-ts" << unicode(xSize) << unicode(ySize)
-      args << "-l" << "target"
-      args << unicode(utils.getVectorLayerByName("target").source())
-      args << outPath
+      args.append("-burn")
+      args.append("1")
+      args.append("-te")
+      args.append(unicode(extent[0]))
+      args.append(unicode(extent[1]))
+      args.append(unicode(extent[2]))
+      args.append(unicode(extent[3]))
+      args.append("-ts")
+      args.append(unicode(xSize))
+      args.append(unicode(ySize))
+      args.append("-l")
+      args.append("target")
+      args.append(unicode(utils.getVectorLayerByName("target").source()))
+      args.append(outPath)
 
       self.process.start("gdal_rasterize", args, QIODevice.ReadOnly)
 
@@ -133,11 +141,13 @@ class ClassificationThread(QThread):
         break
 
       # rasterize background
-      args.clear()
-      args << "-burn" << "2"
-      args << "-l" << "background"
-      args << unicode(utils.getVectorLayerByName("background").source())
-      args << outPath
+      args[:] = []
+      args.append("-burn")
+      args.append("2")
+      args.append("-l")
+      args.append("background")
+      args.append(unicode(utils.getVectorLayerByName("background").source()))
+      args.append(outPath)
 
       self.process.start("gdal_rasterize", args, QIODevice.ReadOnly)
 
@@ -153,9 +163,12 @@ class ClassificationThread(QThread):
         break
 
       # build pyramids
-      args.clear()
-      args << outPath
-      args << "2" << "4" << "8" << "16"
+      args = []
+      args.append(outPath)
+      args.append("2")
+      args.append("4")
+      args.append("8")
+      args.append("16")
 
       self.process.start("gdaladdo", args, QIODevice.ReadOnly)
 
@@ -184,10 +197,10 @@ class ClassificationThread(QThread):
 
     tmpFile.close()
 
-    args = QStringList()
-    args << "-input_file_list"
-    args << tmpFile.fileName()
-    args << self.outputFile
+    args = []
+    args.append("-input_file_list")
+    args.append(tmpFile.fileName())
+    args.append(self.outputFile)
 
     self.process.start("gdalbuildvrt", args, QIODevice.ReadOnly)
 
@@ -201,9 +214,17 @@ class ClassificationThread(QThread):
       self.interrupted = True
 
   def createPyramidsForMosaic(self):
-    args = QStringList()
-    args << self.outputFile
-    args << "8" << "16" << "32" << "64" << "128" << "256" << "512" << "1024" << "2048"
+    args = []
+    args.append(self.outputFile)
+    args.append("8")
+    args.append("16")
+    args.append("32")
+    args.append("64")
+    args.append("128")
+    args.append("256")
+    args.append("512")
+    args.append("1024")
+    args.append("2048")
 
     self.process.start("gdaladdo", args, QIODevice.ReadOnly)
 
@@ -238,7 +259,7 @@ class ClassificationThread(QThread):
       envval = os.getenv(name)
       if envval is None or envval == "":
         envval = unicode(value)
-      elif not QString(envval).split(sep).contains(value, Qt.CaseInsensitive):
+      elif value.lower() not in envval.lower().split(sep):
         envval += "%s%s" % (sep, unicode(value))
       else:
         envval = None

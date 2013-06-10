@@ -62,7 +62,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     self.lstMetrics.setModel(self.filterModel)
 
     settings = QSettings("NextGIS", "UMD")
-    dataDir = settings.value("lastDataDir", "").toString()
+    dataDir = settings.value("lastDataDir", "")
     self.loadMetrics(unicode(dataDir))
     self.filterModel.sort(0)
 
@@ -74,21 +74,19 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     fileCount = 0
     template = QRegExp("^[0-9]{3}_[0-9]{3}$")
     for root, dirs, files in os.walk(directory):
-      if not template.exactMatch(QString(root[-7:])):
+      if not template.exactMatch(root[-7:]):
         continue
 
-      names = QStringList() << "*.vrt" << "*.VRT"
+      names = ["*.vrt", "*.VRT"]
       vrts = QDir(root).entryList(names, QDir.Files)
       for vrt in vrts:
-        fName = os.path.normpath(os.path.join(root,unicode(vrt)))
+        fName = os.path.normpath(os.path.join(root, unicode(vrt)))
         f = QFile(fName)
         if not f.open(QIODevice.ReadOnly | QIODevice.Text):
           QMessageBox.warning(self,
                               self.tr("Load error"),
-                              self.tr("Cannot read file %1:\n%2.")
-                              .arg(fileName)
-                              .arg(fl.errorString())
-                             )
+                              self.tr("Cannot read file %s:\n%s.") % (fileName, fl.errorString())
+                            )
           continue
 
         if root not in self.usedDirs:
@@ -100,11 +98,8 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
         if not setOk:
           QMessageBox.warning(self,
                               self.tr("Load error"),
-                              self.tr("Parse error at line %1, column %2:\n%3")
-                              .arg(errorLine)
-                              .arg(errorColumn)
-                              .arg(errorString)
-                             )
+                              self.tr("Parse error at line %d, column %d:\n%s") % (errorLine, errorColumn, errorString)
+                            )
           continue
 
         fileCount += 1
@@ -145,17 +140,17 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
   def selectOutput(self):
     settings = QSettings("NextGIS", "UMD")
-    lastDirectory = settings.value("lastVRTDir", ".").toString()
+    lastDirectory = settings.value("lastVRTDir", ".")
 
     outPath = QFileDialog.getSaveFileName(self,
                                           self.tr("Select directory"),
                                           lastDirectory,
                                           self.tr("Virtual raster (*.vrt *.VRT)")
-                                         )
-    if outPath.isEmpty():
+                                        )
+    if outPath == "":
       return
 
-    if not outPath.toLower().endsWith(".vrt"):
+    if not outPath.lower().endswith(".vrt"):
       outPath += ".vrt"
 
     self.leOutput.setText(outPath)
@@ -166,11 +161,11 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
   def accept(self):
     self.outputFileName = self.leOutput.text()
-    if self.outputFileName.isEmpty():
+    if self.outputFileName == "":
       QMessageBox.warning(self,
                           self.tr("No output"),
                           self.tr("Output file is not set. Please enter correct filename and try again.")
-                         )
+                        )
       return
 
 
@@ -183,19 +178,19 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
           descr = unicode(item.text())
 
           if descr not in metrics:
-            info = {"band" : item.data(Qt.UserRole + 2).toString(),
-                    "file" : item.data(Qt.UserRole + 3).toString()
+            info = {"band" : item.data(Qt.UserRole + 2),
+                    "file" : item.data(Qt.UserRole + 3)
                    }
-            bt = unicode(item.data(Qt.UserRole + 1).toString())
+            bt = unicode(item.data(Qt.UserRole + 1))
             if bt not in bandTypes:
-              bandTypes.append(item.data(Qt.UserRole + 1).toString())
+              bandTypes.append(item.data(Qt.UserRole + 1))
             metrics[descr] = info
 
     if len(metrics) == 0:
       QMessageBox.warning(self,
                           self.tr("No metrics"),
                           self.tr("Metrics for mosaic are not selected. Please select at least one metric an try again.")
-                         )
+                        )
       return
 
     if len(bandTypes) > 1:
@@ -203,12 +198,12 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
                                 self.tr("Incompatible data types"),
                                 self.tr("Selected metrics have different data types. This will cause slow rendering of mosaic. Continue?"),
                                 QMessageBox.Yes | QMessageBox.No
-                               )
+                              )
       if res == QMessageBox.No:
         return
 
     settings = QSettings("NextGIS", "UMD")
-    projDir = unicode(settings.value("lastProjectDir", ".").toString())
+    projDir = unicode(settings.value("lastProjectDir", "."))
     cfgPath = os.path.join(projDir, "settings.ini")
     if os.path.exists(cfgPath):
       cfg = ConfigParser.SafeConfigParser()
@@ -226,7 +221,7 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     self.workThread = mosaicthread.MosaicThread(metrics,
                                                 self.usedDirs,
                                                 self.outputFileName
-                                               )
+                                              )
 
     self.workThread.rangeChanged.connect(self.setProgressRange)
     self.workThread.updateProgress.connect(self.updateProgress)
@@ -258,13 +253,13 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       else:
         QMessageBox.warning(self,
                             self.tr("Can't open file"),
-                            self.tr("Error loading output VRT-file:\n%1").arg(unicode(self.outputFileName))
-                           )
+                            self.tr("Error loading output VRT-file:\n%s") % (unicode(self.outputFileName))
+                          )
 
-  def processInterrupted( self ):
+  def processInterrupted(self):
     self.restoreGui()
 
-  def stopProcessing( self ):
+  def stopProcessing(self):
     if self.workThread != None:
       self.workThread.stop()
       self.workThread = None

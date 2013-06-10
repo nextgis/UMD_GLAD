@@ -3,7 +3,7 @@ name=UMD
 description=Classification environment for UMD
 category=Plugins
 version=0.0.1
-qgisMinimumVersion=1.9.0
+qgisMinimumVersion=2.0
 
 author=NextGIS
 email=info@nextgis.org

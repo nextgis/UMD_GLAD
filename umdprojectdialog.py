@@ -59,10 +59,10 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     self.manageGui()
 
   def manageGui(self):
-    projDir = unicode(self.settings.value("lastProjectDir", ".").toString())
+    projDir = unicode(self.settings.value("lastProjectDir", "."))
     if os.path.exists(os.path.join(projDir, "settings.ini")):
         self.leProjectDir.setText(projDir)
-        self.leProjectData.setText(self.settings.value("lastDataDir", ".").toString())
+        self.leProjectData.setText(self.settings.value("lastDataDir", "."))
 
         cfg = ConfigParser.SafeConfigParser()
         cfg.read(os.path.join(projDir, "settings.ini"))
@@ -81,25 +81,25 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     QDialog.reject(self)
 
   def accept(self):
-    if self.leProjectName.text().isEmpty():
+    if self.leProjectName.text() == "":
       QMessageBox.warning(self,
                           self.tr("No title"),
                           self.tr("Project title is not set. Please enter valid project title and try again.")
-                         )
+                        )
       return
 
-    if self.leProjectDir.text().isEmpty():
+    if self.leProjectDir.text() == "":
       QMessageBox.warning(self,
                           self.tr("No project directory"),
                           self.tr("Project directory is not set. Please enter valid project directory and try again.")
-                         )
+                        )
       return
 
-    if self.leProjectData.text().isEmpty():
+    if self.leProjectData.text() == "":
       QMessageBox.warning(self,
                           self.tr("No project data"),
                           self.tr("Project data path is not set. Please enter valid path to project data and try again.")
-                         )
+                        )
       return
 
     cfg = ConfigParser.SafeConfigParser()
@@ -110,7 +110,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
                                 self.tr("Settings exists"),
                                 self.tr("This directory already contains project settings file. Do you want to change it?"),
                                 QMessageBox.Yes | QMessageBox.No
-                               )
+                              )
 
       if res == QMessageBox.No:
         return
@@ -130,7 +130,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
       self.createShapes()
 
     QgsProject.instance().title(self.leProjectName.text())
-    QgsProject.instance().setFileName(QString("%1/%2.qgs").arg(self.leProjectDir.text()).arg(self.leProjectName.text()))
+    QgsProject.instance().setFileName(u"%s/%s.qgs" % (self.leProjectDir.text(), self.leProjectName.text()))
     QgsProject.instance().write()
 
     QDialog.accept(self)
@@ -158,16 +158,16 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     senderName = self.sender().objectName()
 
     if senderName == "btnSelectProject":
-      lastDirectory = self.settings.value("lastProjectDir", ".").toString()
+      lastDirectory = self.settings.value("lastProjectDir", ".")
     else:
-      lastDirectory = self.settings.value("lastDataDir", ".").toString()
+      lastDirectory = self.settings.value("lastDataDir", ".")
 
     outPath = QFileDialog.getExistingDirectory(self,
                                                self.tr("Select directory"),
                                                lastDirectory,
                                                QFileDialog.ShowDirsOnly
-                                              )
-    if outPath.isEmpty():
+                                             )
+    if outPath == "":
       return
 
     if senderName == "btnSelectProject":

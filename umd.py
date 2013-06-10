@@ -50,11 +50,11 @@ class UmdPlugin:
     userPluginPath = QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/umd"
     systemPluginPath = QgsApplication.prefixPath() + "/python/plugins/umd"
 
-    overrideLocale = QSettings().value("locale/overrideFlag", QVariant(False)).toBool()
+    overrideLocale = QSettings().value("locale/overrideFlag", False)
     if not overrideLocale:
       localeFullName = QLocale.system().name()
     else:
-      localeFullName = QSettings().value("locale/userLocale", QVariant("")).toString()
+      localeFullName = QSettings().value("locale/userLocale", "")
 
     if QFileInfo(userPluginPath).exists():
       translationPath = userPluginPath + "/i18n/umd_" + localeFullName + ".qm"
@@ -72,8 +72,8 @@ class UmdPlugin:
       qgisVersion = str(self.QgisVersion[ 0 ]) + "." + str(self.QgisVersion[ 2 ]) + "." + str(self.QgisVersion[ 3 ])
       QMessageBox.warning(self.iface.mainWindow(),
                            QCoreApplication.translate("UMD", "Error"),
-                           QCoreApplication.translate("UMD", "Quantum GIS %1 detected.\n").arg(qgisVersion) +
-                           QCoreApplication.translate("UMD", "This version of UMD requires at least QGIS version 1.9.0. Plugin will not be enabled."))
+                           QCoreApplication.translate("UMD", "Quantum GIS %s detected.\n") % (qgisVersion) +
+                           QCoreApplication.translate("UMD", "This version of UMD requires at least QGIS version 2.0. Plugin will not be enabled."))
       return None
 
     self.actionNew = QAction(QCoreApplication.translate("UMD", "Create new project"), self.iface.mainWindow())
@@ -85,7 +85,7 @@ class UmdPlugin:
     self.actionMosaic.setWhatsThis("Create mosaic from tiles")
 
     self.actionClassification = QAction(QCoreApplication.translate("UMD", "Run classification"), self.iface.mainWindow())
-    #self.actionClassification.setIcon(QIcon(":/icons/mosaic.png"))
+    self.actionClassification.setIcon(QIcon(":/icons/classification.png"))
     self.actionClassification.setWhatsThis("Run classification process")
 
     self.actionAbout = QAction(QCoreApplication.translate("UMD", "About UMD..."), self.iface.mainWindow())

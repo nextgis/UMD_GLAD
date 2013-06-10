@@ -25,6 +25,6 @@
 #
 #******************************************************************************
 
-def classFactory( iface ):
+def classFactory(iface):
   from umd import UmdPlugin
-  return UmdPlugin( iface )
+  return UmdPlugin(iface)
