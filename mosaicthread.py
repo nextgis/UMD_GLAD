@@ -111,7 +111,7 @@ class MosaicThread(QThread):
       self.process.start("gdaladdo", args, QIODevice.ReadOnly)
 
       if self.process.waitForFinished(-1):
-        args.clear()
+        args[:] = []
         self.updateProgress.emit()
 
       self.mutex.lock()

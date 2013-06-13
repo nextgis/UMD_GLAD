@@ -130,7 +130,7 @@ class ClassificationThread(QThread):
       self.process.start("gdal_rasterize", args, QIODevice.ReadOnly)
 
       if self.process.waitForFinished(-1):
-        args.clear()
+        args[:] = []
         self.updateProgress.emit()
 
       self.mutex.lock()
@@ -152,7 +152,7 @@ class ClassificationThread(QThread):
       self.process.start("gdal_rasterize", args, QIODevice.ReadOnly)
 
       if self.process.waitForFinished(-1):
-        args.clear()
+        args[:] = []
         self.updateProgress.emit()
 
       self.mutex.lock()
@@ -163,7 +163,7 @@ class ClassificationThread(QThread):
         break
 
       # build pyramids
-      args = []
+      args[:] = []
       args.append(outPath)
       args.append("2")
       args.append("4")
@@ -173,7 +173,7 @@ class ClassificationThread(QThread):
       self.process.start("gdaladdo", args, QIODevice.ReadOnly)
 
       if self.process.waitForFinished(-1):
-        args.clear()
+        args[:] = []
         self.updateProgress.emit()
 
       self.mutex.lock()
