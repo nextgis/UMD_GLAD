@@ -73,7 +73,18 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     QDialog.reject(self)
 
   def accept(self):
-    # TODO: check for necessary vector layers
+    layers = QgsMapLayerRegistry.instance().mapLayers()
+    layersFound = False
+    for layerName, layer in layers.iteritems():
+      if layer.type() == QgsMapLayer.VectorLayer and layer.name() in ["target", "background"]:
+        layersFound = True
+
+    if not layersFound:
+      QMessageBox.warning(self,
+                          self.tr("Missed layer"),
+                          self.tr("Target or background layer not found. Please add them and try again.")
+                         )
+      return
 
     maskFile = self.leMaskFile.text()
     if maskFile == "":
