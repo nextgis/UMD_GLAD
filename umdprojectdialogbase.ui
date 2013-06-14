@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>512</width>
-    <height>441</height>
+    <height>549</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,11 +34,27 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="leProjectData"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>MinGW folder</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="leProjectName"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="leMinGW"/>
+      </item>
       <item row="1" column="1">
        <widget class="QLineEdit" name="leProjectDir"/>
       </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="btnSelectProject">
+      <item row="3" column="2">
+       <widget class="QPushButton" name="btnSelectMingw">
         <property name="text">
          <string>Browse...</string>
         </property>
@@ -51,8 +67,12 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="leProjectData"/>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="btnSelectProject">
+        <property name="text">
+         <string>Browse...</string>
+        </property>
+       </widget>
       </item>
       <item row="2" column="2">
        <widget class="QPushButton" name="btnSelectData">
@@ -60,9 +80,6 @@
          <string>Browse...</string>
         </property>
        </widget>
-      </item>
-      <item row="0" column="1" colspan="2">
-       <widget class="QLineEdit" name="leProjectName"/>
       </item>
      </layout>
     </widget>
@@ -181,14 +198,7 @@
      <property name="title">
       <string>Processing settings</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Parallel processes for tiles</string>
-        </property>
-       </widget>
-      </item>
+     <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="1">
        <widget class="QSpinBox" name="spnTilesThreads">
         <property name="minimum">
@@ -196,13 +206,6 @@
         </property>
         <property name="maximum">
          <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>Parallel processes for trees</string>
         </property>
        </widget>
       </item>
@@ -216,6 +219,51 @@
         </property>
         <property name="value">
          <number>7</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Stack memory allocation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" rowspan="2">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Sampling rate for one tree</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QSpinBox" name="spnSampling">
+        <property name="value">
+         <number>20</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Parallel processes for tiles</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>Parallel processes for trees</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" rowspan="2">
+       <widget class="QSpinBox" name="spnMemory">
+        <property name="maximum">
+         <number>900000000</number>
+        </property>
+        <property name="value">
+         <number>900000000</number>
         </property>
        </widget>
       </item>

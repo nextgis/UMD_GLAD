@@ -55,6 +55,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
 
     self.btnSelectProject.clicked.connect(self.__selectDirectory)
     self.btnSelectData.clicked.connect(self.__selectDirectory)
+    self.btnSelectMingw.clicked.connect(self.__selectCompiler)
 
     self.manageGui()
 
@@ -67,8 +68,13 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read(os.path.join(projDir, "settings.ini"))
         self.leProjectName.setText(cfg.get("General", "projectName"))
+        self.leProjectData.setText(cfg.get("General", "metricspath"))
+        self.leProjectDir.setText(cfg.get("General", "projpath"))
+        self.leMinGW.setText(cfg.get("General", "cpp"))
         self.spnTilesThreads.setValue(cfg.getint("General", "threads"))
         self.spnTreesThreads.setValue(cfg.getint("General", "treethreads"))
+        self.spnMemory.setValue(cfg.getint("General", "memsize"))
+        self.spnSampling.setValue(cfg.getint("General", "sampling"))
         self.spnUlx.setValue(cfg.getint("General", "ulxgrid"))
         self.spnUly.setValue(cfg.getint("General", "ulygrid"))
         self.spnTileSide.setValue(cfg.getint("General", "tileside"))
@@ -177,20 +183,39 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
       self.leProjectData.setText(outPath)
       self.settings.setValue("lastDataDir", QDir(outPath).absolutePath())
 
+  def __selectCompiler(self):
+    lastDirectory = self.settings.value("lastExeDir", ".")
+    fName = QFileDialog.getOpenFileName(self,
+                                        self.tr("Select compiler"),
+                                        lastDirectory,
+                                        self.tr("Executable files (*.exe, *.EXE)")
+                                       )
+
+    if fName == "":
+      return
+
+    self.leMinGW.setText(fName)
+    self.settings.setValue("lastExeDir", QFileInfo(fName).absoluteDir().absolutePath())
+
   def __writeConfigFile(self, cfg, filePath):
-      if not cfg.has_section("General"):
-        cfg.add_section("General")
+    if not cfg.has_section("General"):
+      cfg.add_section("General")
 
-      cfg.set("General", "projectName", unicode(self.leProjectName.text()))
-      cfg.set("General", "threads", unicode(self.spnTilesThreads.value()))
-      cfg.set("General", "treethreads", unicode(self.spnTreesThreads.value()))
-      cfg.set("General", "region", unicode(""))
-      cfg.set("General", "ulxgrid", unicode(self.spnUlx.value()))
-      cfg.set("General", "ulygrid", unicode(self.spnUly.value()))
-      cfg.set("General", "prolong", unicode(""))
-      cfg.set("General", "tileside", unicode(self.spnTileSide.value()))
-      cfg.set("General", "tilebuffer", unicode(self.spnTileBuffer.value()))
-      cfg.set("General", "pixelsize", unicode(self.spnPixelSize.value()))
+    cfg.set("General", "projectName", unicode(self.leProjectName.text()))
+    cfg.set("General", "projpath", unicode(QDir.toNativeSeparators(self.leProjectDir.text())))
+    cfg.set("General", "metricspath", unicode(QDir.toNativeSeparators(self.leProjectData.text())))
+    cfg.set("General", "cpp", unicode(QDir.toNativeSeparators(self.leMinGW.text())))
+    cfg.set("General", "threads", unicode(self.spnTilesThreads.value()))
+    cfg.set("General", "treethreads", unicode(self.spnTreesThreads.value()))
+    cfg.set("General", "memsize", unicode(self.spnMemory.value()))
+    cfg.set("General", "sampling", unicode(self.spnSampling.value()))
+    #cfg.set("General", "region", unicode(""))
+    cfg.set("General", "ulxgrid", unicode(self.spnUlx.value()))
+    cfg.set("General", "ulygrid", unicode(self.spnUly.value()))
+    #cfg.set("General", "prolong", unicode(""))
+    cfg.set("General", "tileside", unicode(self.spnTileSide.value()))
+    cfg.set("General", "tilebuffer", unicode(self.spnTileBuffer.value()))
+    cfg.set("General", "pixelsize", unicode(self.spnPixelSize.value()))
 
-      with open(filePath, 'wb') as f:
-        cfg.write(f)
+    with open(filePath, 'wb') as f:
+      cfg.write(f)
