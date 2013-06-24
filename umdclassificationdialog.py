@@ -27,6 +27,7 @@
 
 import os
 import ConfigParser
+import pickle
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -35,6 +36,7 @@ from PyQt4.QtXml import *
 from qgis.core import *
 
 import classificationthread
+import umd_utils as utils
 
 from ui_umdclassificationdialogbase import Ui_Dialog
 
@@ -53,7 +55,9 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       cfg = ConfigParser.SafeConfigParser()
       cfg.read(cfgPath)
 
-      self.metrics = cfg.get("Metrics", "metrics").split(",")
+      #self.metrics = cfg.get("Metrics", "metrics").split(",")
+      s = cfg.get("Metrics", "metrics_dict")
+      self.metrics = pickle.loads(s)
       self.usedDirs = cfg.get("Metrics", "tiles").split(",")
 
     self.btnSelectMask.clicked.connect(self.selectFile)
@@ -110,6 +114,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
 
     self.workThread.rangeChanged.connect(self.setProgressRange)
     self.workThread.updateProgress.connect(self.updateProgress)
+    self.workThread.logMessage.connect(self.updateMessages)
     self.workThread.processFinished.connect(self.processFinished)
     self.workThread.processInterrupted.connect(self.processInterrupted)
 
@@ -117,6 +122,11 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.btnClose.setText(self.tr("Cancel"))
     self.buttonBox.rejected.disconnect(self.reject)
     self.btnClose.clicked.connect(self.stopProcessing)
+
+    # if classification result already there — unload it
+    layer = utils.getLayerBySource(self.leOutputFile.text())
+    if layer is not None:
+      QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
 
     self.workThread.start()
 
@@ -127,6 +137,9 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
   def updateProgress(self):
     self.progressBar.setValue(self.progressBar.value() + 1)
 
+  def updateMessages(self, message):
+    self.edLog.appendPlainText(message)
+
   def processFinished(self):
     self.stopProcessing()
     self.restoreGui()
@@ -136,7 +149,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       newLayer = QgsRasterLayer(maskFile, QFileInfo(maskFile).baseName())
 
       if newLayer.isValid():
-        QgsMapLayerRegistry.instance().addMapLayers([newLayer])
+        QgsMapLayerRegistry.instance().addMapLayer(newLayer)
       else:
         QMessageBox.warning(self,
                             self.tr("Can't open file"),
@@ -148,7 +161,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       newLayer = QgsRasterLayer(outputFile, QFileInfo(outputFile).baseName())
 
       if newLayer.isValid():
-        QgsMapLayerRegistry.instance().addMapLayers([newLayer])
+        QgsMapLayerRegistry.instance().addMapLayer(newLayer)
       else:
         QMessageBox.warning(self,
                             self.tr("Can't open file"),

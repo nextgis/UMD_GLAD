@@ -43,6 +43,7 @@ class ClassificationThread(QThread):
   processError = pyqtSignal()
   processFinished = pyqtSignal()
   processInterrupted = pyqtSignal()
+  logMessage = pyqtSignal(str)
 
   def __init__(self, metrics, directories, maskFile, outputFile):
     QThread.__init__(self, QThread.currentThread())
@@ -81,8 +82,8 @@ class ClassificationThread(QThread):
       self.createMosaic(lstFiles)
     if not self.interrupted:
       self.createPyramidsForMosaic()
-
-    # TODO: run classification
+    if not self.interrupted:
+      self.runClassification()
 
     if not self.interrupted:
       self.processFinished.emit()
@@ -237,6 +238,28 @@ class ClassificationThread(QThread):
     if s == 1:
       self.interrupted = True
 
+  def runClassification(self):
+    settings = QSettings("NextGIS", "UMD")
+    projDir = unicode(settings.value("lastProjectDir", "."))
+    script = os.path.join(os.path.abspath(projDir), "classification.pl")
+
+    self.process.readyReadStandardOutput.connect(self.getStandardOutput)
+
+    self.process.setProcessChannelMode(QProcess.MergedChannels)
+    self.process.setReadChannel(QProcess.StandardOutput)
+    self.process.setWorkingDirectory(projDir)
+
+    self.process.start("perl", [script], QIODevice.ReadOnly)
+
+    if self.process.waitForFinished(-1):
+      self.updateProgress.emit()
+
+    self.mutex.lock()
+    s = self.stopMe
+    self.mutex.unlock()
+    if s == 1:
+      self.interrupted = True
+
   def onError(self, error):
     print "process error", error
     self.processError.emit()
@@ -244,6 +267,10 @@ class ClassificationThread(QThread):
   def onFinished(self, exitCode, status):
     print "finished", exitCode, status
     self.processFinished.emit()
+
+  def getStandardOutput(self):
+    text = str(self.process.readAllStandardOutput())
+    self.logMessage.emit(text)
 
   def __setProcessEnvironment(self, process):
     envVars = {
