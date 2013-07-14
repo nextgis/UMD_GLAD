@@ -106,6 +106,22 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
                          )
       return
 
+    settings = QSettings("NextGIS", "UMD")
+    projDir = unicode(settings.value("lastProjectDir", "."))
+    cfgPath = os.path.join(projDir, "settings.ini")
+    if os.path.exists(cfgPath):
+      cfg = ConfigParser.SafeConfigParser()
+      cfg.read(cfgPath)
+
+      if not cfg.has_section("Outputs"):
+        cfg.add_section("Outputs")
+
+      cfg.set("Outputs", "maskFile", maskFile)
+      cfg.set("Outputs", "resultFile", outputFile)
+
+      with open(cfgPath, 'wb') as f:
+        cfg.write(f)
+
     self.workThread = classificationthread.ClassificationThread(self.metrics,
                                                                 self.usedDirs,
                                                                 maskFile,
