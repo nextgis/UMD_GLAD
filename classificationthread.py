@@ -45,7 +45,7 @@ class ClassificationThread(QThread):
   processInterrupted = pyqtSignal()
   logMessage = pyqtSignal(str)
 
-  def __init__(self, metrics, directories, maskFile, outputFile):
+  def __init__(self, metrics, directories, outputFile):
     QThread.__init__(self, QThread.currentThread())
     self.mutex = QMutex()
     self.stopMe = 0
@@ -53,7 +53,6 @@ class ClassificationThread(QThread):
 
     self.metrics = metrics
     self.directories = directories
-    self.maskFile = maskFile
     self.outputFile = outputFile
 
   def run(self):
@@ -67,23 +66,23 @@ class ClassificationThread(QThread):
     self.process.error.connect(self.onError)
     self.process.finished.connect(self.onFinished)
 
-    lstFiles = []
-
-    for k, v in self.metrics.iteritems():
-      for d in self.directories:
-        filePath = os.path.join(unicode(d), unicode(v["file"]))
-        lstFiles.append(filePath)
-
-    self.rangeChanged.emit("Rasterization %p%", len(lstFiles) * 3 + 2)
-
-    # prepare and call GDAL commands
-    self.createMaskTile(lstFiles)
-    if not self.interrupted:
-      self.createMosaic(lstFiles)
-    if not self.interrupted:
-      self.createPyramidsForMosaic()
-    if not self.interrupted:
-      self.runClassification()
+    #~ lstFiles = []
+#~
+    #~ for k, v in self.metrics.iteritems():
+      #~ for d in self.directories:
+        #~ filePath = os.path.join(unicode(d), unicode(v["file"]))
+        #~ lstFiles.append(filePath)
+#~
+    #~ self.rangeChanged.emit("Rasterization %p%", len(lstFiles) * 3 + 2)
+#~
+    #~ # prepare and call GDAL commands
+    #~ self.createMaskTile(lstFiles)
+    #~ if not self.interrupted:
+      #~ self.createMosaic(lstFiles)
+    #~ if not self.interrupted:
+      #~ self.createPyramidsForMosaic()
+    #~ if not self.interrupted:
+    self.runClassification()
 
     if not self.interrupted:
       self.processFinished.emit()

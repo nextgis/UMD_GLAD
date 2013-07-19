@@ -55,23 +55,16 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       cfg = ConfigParser.SafeConfigParser()
       cfg.read(cfgPath)
 
-      #self.metrics = cfg.get("Metrics", "metrics").split(",")
       s = cfg.get("Metrics", "metrics_dict")
       self.metrics = pickle.loads(s)
       self.usedDirs = cfg.get("Metrics", "tiles").split(",")
 
-    self.btnSelectMask.clicked.connect(self.selectFile)
-    self.btnSelectOutput.clicked.connect(self.selectFile)
+    self.btnSelectMask.clicked.connect(self.selectDir)
 
     self.btnOk = self.buttonBox.button(QDialogButtonBox.Ok)
     self.btnClose = self.buttonBox.button(QDialogButtonBox.Close)
 
     self.workThread = None
-
-    self.manageGui()
-
-  def manageGui(self):
-    pass
 
   def reject(self):
     QDialog.reject(self)
@@ -90,22 +83,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
                          )
       return
 
-    maskFile = self.leMaskFile.text()
-    if maskFile == "":
-      QMessageBox.warning(self,
-                          self.tr("File not specified"),
-                          self.tr("Mask file is not set. Please specify correct filename and try again")
-                         )
-      return
-
-    outputFile = self.leMaskFile.text()
-    if outputFile == "":
-      QMessageBox.warning(self,
-                          self.tr("File not specified"),
-                          self.tr("Output file is not set. Please specify correct filename and try again")
-                         )
-      return
-
+    self.outputFile = None
     settings = QSettings("NextGIS", "UMD")
     projDir = unicode(settings.value("lastProjectDir", "."))
     cfgPath = os.path.join(projDir, "settings.ini")
@@ -113,19 +91,25 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       cfg = ConfigParser.SafeConfigParser()
       cfg.read(cfgPath)
 
+      self.outputFile = os.path.join(cfg.get("General", "metricspath"), "out.vrt")
+
       if not cfg.has_section("Outputs"):
         cfg.add_section("Outputs")
 
-      cfg.set("Outputs", "maskFile", maskFile)
+      cfg.set("Outputs", "maskFile", self.leMaskFile.text())
       cfg.set("Outputs", "resultFile", outputFile)
+
+      if self.rbTarget.isChecked():
+        cfg.set("Mask", "maskclass", 1)
+      else:
+        cfg.set("Mask", "maskclass", 2)
 
       with open(cfgPath, 'wb') as f:
         cfg.write(f)
 
     self.workThread = classificationthread.ClassificationThread(self.metrics,
                                                                 self.usedDirs,
-                                                                maskFile,
-                                                                outputFile
+                                                                self.outputFile
                                                                )
 
     self.workThread.rangeChanged.connect(self.setProgressRange)
@@ -160,28 +144,15 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.stopProcessing()
     self.restoreGui()
 
-    if self.chkAddMask.isChecked():
-      maskFile = self.leMaskFile.text()
-      newLayer = QgsRasterLayer(maskFile, QFileInfo(maskFile).baseName())
-
-      if newLayer.isValid():
-        QgsMapLayerRegistry.instance().addMapLayer(newLayer)
-      else:
-        QMessageBox.warning(self,
-                            self.tr("Can't open file"),
-                            self.tr("Error loading output VRT-file:\n%s") % (unicode(maskFile))
-                           )
-
     if self.chkAddOutput.isChecked():
-      outputFile = self.leOutputFile.text()
-      newLayer = QgsRasterLayer(outputFile, QFileInfo(outputFile).baseName())
+      newLayer = QgsRasterLayer(self.outputFile, QFileInfo(self.outputFile).baseName())
 
       if newLayer.isValid():
         QgsMapLayerRegistry.instance().addMapLayer(newLayer)
       else:
         QMessageBox.warning(self,
                             self.tr("Can't open file"),
-                            self.tr("Error loading output VRT-file:\n%s") % (unicode(outputFile))
+                            self.tr("Error loading output VRT-file:\n%s") % (unicode(self.outputFile))
                            )
 
   def processInterrupted(self):
@@ -202,25 +173,16 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.btnClose.setText(self.tr("Close"))
     self.btnOk.setEnabled(True)
 
-  def selectFile(self):
-    senderName = self.sender().objectName()
-
+  def selectDir(self):
     settings = QSettings("NextGIS", "UMD")
-    lastDir = settings.value("lastRasterDir", ".")
-    fileName = QFileDialog.getSaveFileName(self,
-                                           self.tr("Save file"),
-                                           lastDir,
-                                           self.tr("Virtual raster (*.vrt *.VRT)")
-                                          )
-    if fileName == "":
+    lastDir = settings.value("lastProjectDir", ".")
+    outPath = QFileDialog.getExistingDirectory(self,
+                                                self.tr("Select directory"),
+                                                lastDir,
+                                                QFileDialog.ShowDirsOnly
+                                               )
+    if outPath == "":
       return
 
-    if not fileName.lower().endswith(".vrt"):
-      fileName += ".vrt"
-
-    if senderName == "btnSelectMask":
-      self.leMaskFile.setText(fileName)
-    elif senderName == "btnSelectOutput":
-      self.leOutputFile.setText(fileName)
-
-    settings.setValue("lastRasterDir", QFileInfo(fileName).absoluteDir().absolutePath())
+    self.leMaskFile.setText(outPath)
+    settings.setValue("lastProjectDir", Dir(outPath).absolutePath())
