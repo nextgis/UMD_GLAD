@@ -48,7 +48,11 @@
        <widget class="QLineEdit" name="leProjectName"/>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="leMinGW"/>
+       <widget class="QLineEdit" name="leMinGW">
+        <property name="text">
+         <string>C:\MinGW\bin\x86_64-w64-mingw32-g++.exe</string>
+        </property>
+       </widget>
       </item>
       <item row="1" column="1">
        <widget class="QLineEdit" name="leProjectDir"/>
@@ -199,16 +203,6 @@
       <string>Processing settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="1">
-       <widget class="QSpinBox" name="spnTilesThreads">
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="QSpinBox" name="spnTreesThreads">
         <property name="minimum">
@@ -219,6 +213,16 @@
         </property>
         <property name="value">
          <number>7</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="spnTilesThreads">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>10</number>
         </property>
        </widget>
       </item>
@@ -264,6 +268,20 @@
         </property>
         <property name="value">
          <number>900000000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>Number of bagged trees</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QSpinBox" name="spnBaggedTrees">
+        <property name="value">
+         <number>7</number>
         </property>
        </widget>
       </item>

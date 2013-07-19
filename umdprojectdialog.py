@@ -75,6 +75,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
         self.spnTreesThreads.setValue(cfg.getint("General", "treethreads"))
         self.spnMemory.setValue(cfg.getint("General", "memsize"))
         self.spnSampling.setValue(cfg.getint("General", "sampling"))
+        self.spnBaggedTrees.setValue(cfg.getint("General", "maxtrees"))
         self.spnUlx.setValue(cfg.getint("General", "ulxgrid"))
         self.spnUly.setValue(cfg.getint("General", "ulygrid"))
         self.spnTileSide.setValue(cfg.getint("General", "tileside"))
@@ -132,21 +133,40 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
       if layer.type() == QgsMapLayer.VectorLayer and layer.name() in ["target", "background"]:
         layersFound = True
 
+    # read random tile and get CRS from it
+    crs = None
+    template = QRegExp("^[0-9]{3}_[0-9]{3}$")
+    for root, dirs, files in os.walk(self.leProjectData.text()):
+      if not template.exactMatch(root[-7:]):
+        continue
+
+      names = ["*.vrt", "*.VRT"]
+      vrts = QDir(root).entryList(names, QDir.Files)
+      myFile = vrts[0]
+      layer = QgsRasterLayer(os.path.join(root, myFile), "tmp")
+      if layer.isValid():
+        crs = layer.crs()
+        break
+
     if not layersFound:
-      self.createShapes()
+      self.createShapes(crs)
+
+    # map crs
+    self.iface.mapCanvas().mapRenderer().setDestinationCrs(crs)
 
     QgsProject.instance().title(self.leProjectName.text())
     QgsProject.instance().setFileName(u"%s/%s.qgs" % (self.leProjectDir.text(), self.leProjectName.text()))
+    QgsProject.instance().writeEntry("SpatialRefSys", "/ProjectCRSProj4String", crs.toProj4())
     QgsProject.instance().write()
 
     QDialog.accept(self)
 
-  def createShapes(self):
+  def createShapes(self, crs):
     symbol = QgsSymbolV2.defaultSymbol(QGis.Polygon)
     symbol.setColor(Qt.red)
     renderer = QgsSingleSymbolRendererV2(symbol)
     fPath = QFileInfo(self.leProjectDir.text() + "/target.shp").absoluteFilePath()
-    utils.createPolygonShapeFile(fPath, "")
+    utils.createPolygonShapeFile(fPath, crs)
     layer = QgsVectorLayer(fPath, "target", "ogr")
     layer.setRendererV2(renderer)
     QgsMapLayerRegistry.instance().addMapLayers([layer])
@@ -155,7 +175,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     symbol.setColor(Qt.blue)
     renderer = QgsSingleSymbolRendererV2(symbol)
     fPath = QFileInfo(self.leProjectDir.text() + "/background.shp").absoluteFilePath()
-    utils.createPolygonShapeFile(fPath, "")
+    utils.createPolygonShapeFile(fPath, crs)
     layer = QgsVectorLayer(fPath, "background", "ogr")
     layer.setRendererV2(renderer)
     QgsMapLayerRegistry.instance().addMapLayers([layer])
@@ -188,7 +208,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     fName = QFileDialog.getOpenFileName(self,
                                         self.tr("Select compiler"),
                                         lastDirectory,
-                                        self.tr("Executable files (*.exe, *.EXE)")
+                                        self.tr("Executable files (*.exe *.EXE)")
                                        )
 
     if fName == "":
@@ -209,13 +229,13 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     cfg.set("General", "treethreads", unicode(self.spnTreesThreads.value()))
     cfg.set("General", "memsize", unicode(self.spnMemory.value()))
     cfg.set("General", "sampling", unicode(self.spnSampling.value()))
-    #cfg.set("General", "region", unicode(""))
+    cfg.set("General", "maxtrees", unicode(self.spnBaggedTrees.value()))
     cfg.set("General", "ulxgrid", unicode(self.spnUlx.value()))
     cfg.set("General", "ulygrid", unicode(self.spnUly.value()))
-    #cfg.set("General", "prolong", unicode(""))
     cfg.set("General", "tileside", unicode(self.spnTileSide.value()))
     cfg.set("General", "tilebuffer", unicode(self.spnTileBuffer.value()))
     cfg.set("General", "pixelsize", unicode(self.spnPixelSize.value()))
+    cfg.set("General", "Ignore PF Flags", u"13,14,15,19,21,22,23,111,112")
 
     with open(filePath, 'wb') as f:
       cfg.write(f)
