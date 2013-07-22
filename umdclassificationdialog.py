@@ -97,12 +97,15 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
         cfg.add_section("Outputs")
 
       cfg.set("Outputs", "maskFile", self.leMaskFile.text())
-      cfg.set("Outputs", "resultFile", outputFile)
+      cfg.set("Outputs", "resultFile", self.outputFile)
+
+      if not cfg.has_section("Mask"):
+        cfg.add_section("Mask")
 
       if self.rbTarget.isChecked():
-        cfg.set("Mask", "maskclass", 1)
+        cfg.set("Mask", "maskclass", "1")
       else:
-        cfg.set("Mask", "maskclass", 2)
+        cfg.set("Mask", "maskclass", "2")
 
       with open(cfgPath, 'wb') as f:
         cfg.write(f)
@@ -112,8 +115,8 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
                                                                 self.outputFile
                                                                )
 
-    self.workThread.rangeChanged.connect(self.setProgressRange)
-    self.workThread.updateProgress.connect(self.updateProgress)
+    #~ self.workThread.rangeChanged.connect(self.setProgressRange)
+    #~ self.workThread.updateProgress.connect(self.updateProgress)
     self.workThread.logMessage.connect(self.updateMessages)
     self.workThread.processFinished.connect(self.processFinished)
     self.workThread.processInterrupted.connect(self.processInterrupted)
@@ -124,18 +127,19 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.btnClose.clicked.connect(self.stopProcessing)
 
     # if classification result already there — unload it
-    layer = utils.getLayerBySource(self.leOutputFile.text())
+    layer = utils.getRasterLayerByName(QFileInfo(self.outputFile).baseName())
     if layer is not None:
       QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
+      QMessageBox.warning(self, "DEBUG", "Check if layer removed")
 
     self.workThread.start()
 
-  def setProgressRange(self, message, maxValue):
-    self.progressBar.setFormat(message)
-    self.progressBar.setRange(0, maxValue)
-
-  def updateProgress(self):
-    self.progressBar.setValue(self.progressBar.value() + 1)
+  #~ def setProgressRange(self, message, maxValue):
+    #~ self.progressBar.setFormat(message)
+    #~ self.progressBar.setRange(0, maxValue)
+#~
+  #~ def updateProgress(self):
+    #~ self.progressBar.setValue(self.progressBar.value() + 1)
 
   def updateMessages(self, message):
     self.edLog.appendPlainText(message)

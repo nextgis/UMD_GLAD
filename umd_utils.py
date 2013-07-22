@@ -55,3 +55,12 @@ def getLayerBySource(layerSource):
         return layer
       else:
         return None
+
+def getRasterLayerByName(layerName):
+  layerMap = QgsMapLayerRegistry.instance().mapLayers()
+  for name, layer in layerMap.iteritems():
+    if layer.type() == QgsMapLayer.RasterLayer and layer.name() == layerName:
+      if layer.isValid():
+        return layer
+      else:
+        return None

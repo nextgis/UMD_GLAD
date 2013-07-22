@@ -37,8 +37,8 @@ from qgis.core import *
 import umd_utils as utils
 
 class ClassificationThread(QThread):
-  rangeChanged = pyqtSignal(str, int)
-  updateProgress = pyqtSignal()
+  #~ rangeChanged = pyqtSignal(str, int)
+  #~ updateProgress = pyqtSignal()
 
   processError = pyqtSignal()
   processFinished = pyqtSignal()
@@ -251,7 +251,7 @@ class ClassificationThread(QThread):
     self.process.start("perl", [script], QIODevice.ReadOnly)
 
     if self.process.waitForFinished(-1):
-      self.updateProgress.emit()
+      pass
 
     self.mutex.lock()
     s = self.stopMe
