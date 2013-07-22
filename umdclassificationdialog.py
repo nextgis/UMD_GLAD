@@ -130,7 +130,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     layer = utils.getRasterLayerByName(QFileInfo(self.outputFile).baseName())
     if layer is not None:
       QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
-      QMessageBox.warning(self, "DEBUG", "Check if layer removed")
+      #QMessageBox.warning(self, "DEBUG", "Check if layer removed")
 
     self.workThread.start()
 
