@@ -65,7 +65,23 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
         self.leProjectDir.setText(projDir)
         self.leProjectData.setText(self.settings.value("lastDataDir", "."))
 
-        cfg = ConfigParser.SafeConfigParser()
+        defaults = {"projectName":"",
+                    "metricspath":"",
+                    "projpath":"",
+                    "cpp":"C:\MinGW\bin\x86_64-w64-mingw32-g++.exe",
+                    "threads":"1",
+                    "treethreads":"7",
+                    "memsize":"900000000",
+                    "sampling":"20",
+                    "maxtrees":"7",
+                    "ulxgrid":"-4560000",
+                    "ulygrid":"2400000",
+                    "tileside":"2000",
+                    "tilebuffer":"2",
+                    "pixelsize":"30"
+                   }
+
+        cfg = ConfigParser.SafeConfigParser(defaults)
         cfg.read(os.path.join(projDir, "settings.ini"))
         self.leProjectName.setText(cfg.get("General", "projectName"))
         self.leProjectData.setText(cfg.get("General", "metricspath"))
