@@ -168,9 +168,9 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       self.workThread = None
 
   def restoreGui(self):
-    self.progressBar.setFormat("%p%")
-    self.progressBar.setRange(0, 1)
-    self.progressBar.setValue(0)
+    #self.progressBar.setFormat("%p%")
+    #self.progressBar.setRange(0, 1)
+    #self.progressBar.setValue(0)
 
     self.buttonBox.rejected.connect(self.reject)
     self.btnClose.clicked.disconnect(self.stopProcessing)
