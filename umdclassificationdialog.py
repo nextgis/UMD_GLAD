@@ -163,4 +163,4 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       return
 
     self.leMaskFile.setText(outPath)
-    settings.setValue("lastProjectDir", Dir(outPath).absolutePath())
+    settings.setValue("lastProjectDir", QDir(outPath).absolutePath())
