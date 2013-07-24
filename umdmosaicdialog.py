@@ -27,7 +27,6 @@
 
 import os
 import ConfigParser
-import pickle
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -215,8 +214,6 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
 
       cfg.set("Metrics", "tiles", ",".join(self.usedDirs))
       cfg.set("Metrics", "metrics", ",".join(metrics.keys()))
-      s = pickle.dumps(metrics)
-      cfg.set("Metrics", "metrics_dict", s)
 
       with open(cfgPath, 'wb') as f:
         cfg.write(f)

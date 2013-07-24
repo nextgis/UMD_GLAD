@@ -33,8 +33,6 @@ def createPolygonShapeFile(filePath, crs):
   fields = QgsFields()
   fields.append(QgsField("id", QVariant.Int))
 
-  crs = QgsCoordinateReferenceSystem()
-  print filePath
   writer = QgsVectorFileWriter(filePath, "utf-8", fields, QGis.WKBPolygon, crs)
   del writer
 

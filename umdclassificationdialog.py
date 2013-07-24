@@ -48,17 +48,6 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.plugin = plugin
     self.iface = plugin.iface
 
-    settings = QSettings("NextGIS", "UMD")
-    projDir = unicode(settings.value("lastProjectDir", "."))
-    cfgPath = os.path.join(projDir, "settings.ini")
-    if os.path.exists(cfgPath):
-      cfg = ConfigParser.SafeConfigParser()
-      cfg.read(cfgPath)
-
-      s = cfg.get("Metrics", "metrics_dict")
-      self.metrics = pickle.loads(s)
-      self.usedDirs = cfg.get("Metrics", "tiles").split(",")
-
     self.btnSelectMask.clicked.connect(self.selectDir)
 
     self.btnOk = self.buttonBox.button(QDialogButtonBox.Ok)
@@ -110,13 +99,10 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       with open(cfgPath, 'wb') as f:
         cfg.write(f)
 
-    self.workThread = classificationthread.ClassificationThread(self.metrics,
-                                                                self.usedDirs,
+    self.workThread = classificationthread.ClassificationThread(
                                                                 self.outputFile
                                                                )
 
-    #~ self.workThread.rangeChanged.connect(self.setProgressRange)
-    #~ self.workThread.updateProgress.connect(self.updateProgress)
     self.workThread.logMessage.connect(self.updateMessages)
     self.workThread.processFinished.connect(self.processFinished)
     self.workThread.processInterrupted.connect(self.processInterrupted)
@@ -130,16 +116,8 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     layer = utils.getRasterLayerByName(QFileInfo(self.outputFile).baseName())
     if layer is not None:
       QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
-      #QMessageBox.warning(self, "DEBUG", "Check if layer removed")
 
     self.workThread.start()
-
-  #~ def setProgressRange(self, message, maxValue):
-    #~ self.progressBar.setFormat(message)
-    #~ self.progressBar.setRange(0, maxValue)
-#~
-  #~ def updateProgress(self):
-    #~ self.progressBar.setValue(self.progressBar.value() + 1)
 
   def updateMessages(self, message):
     self.edLog.appendPlainText(message)
@@ -168,10 +146,6 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       self.workThread = None
 
   def restoreGui(self):
-    #self.progressBar.setFormat("%p%")
-    #self.progressBar.setRange(0, 1)
-    #self.progressBar.setValue(0)
-
     self.buttonBox.rejected.connect(self.reject)
     self.btnClose.clicked.disconnect(self.stopProcessing)
     self.btnClose.setText(self.tr("Close"))
