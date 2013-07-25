@@ -61,8 +61,13 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
     self.filterModel.setSourceModel(self.model)
     self.lstMetrics.setModel(self.filterModel)
 
-    settings = QSettings("NextGIS", "UMD")
-    dataDir = settings.value("lastDataDir", "")
+    projPath = QgsProject.instance().fileName()
+    cfgPath = os.path.join(QFileInfo(projPath).absolutePath(), "settings.ini")
+    if os.path.exists(cfgPath):
+      cfg = ConfigParser.SafeConfigParser()
+      cfg.read(cfgPath)
+      dataDir = cfg.get("general", "metricspath")
+
     self.loadMetrics(unicode(dataDir))
     self.filterModel.sort(0)
 
@@ -202,19 +207,14 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       if res == QMessageBox.No:
         return
 
-    settings = QSettings("NextGIS", "UMD")
-    projDir = unicode(settings.value("lastProjectDir", "."))
-    cfgPath = os.path.join(projDir, "settings.ini")
+
+    projPath = QgsProject.instance().fileName()
+    cfgPath = os.path.join(QFileInfo(projPath).absolutePath(), "settings.ini")
     if os.path.exists(cfgPath):
       cfg = ConfigParser.SafeConfigParser()
       cfg.read(cfgPath)
-
-      if not cfg.has_section("Metrics"):
-        cfg.add_section("Metrics")
-
-      cfg.set("Metrics", "tiles", ",".join(self.usedDirs))
-      cfg.set("Metrics", "metrics", ",".join(metrics.keys()))
-
+      cfg.set("general", "tiles", ",".join(self.usedDirs))
+      cfg.set("general", "metrics", ",".join(metrics.keys()))
       with open(cfgPath, 'wb') as f:
         cfg.write(f)
 

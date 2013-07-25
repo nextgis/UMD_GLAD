@@ -26,6 +26,7 @@
 #******************************************************************************
 
 import os
+import ConfigParser
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -56,7 +57,6 @@ class ClassificationThread(QThread):
     self.mutex.unlock()
 
     self.process = QProcess()
-    self.__setProcessEnvironment(self.process)
 
     self.process.error.connect(self.onError)
     self.process.finished.connect(self.onFinished)
@@ -76,8 +76,13 @@ class ClassificationThread(QThread):
     QThread.wait(self)
 
   def runClassification(self):
-    settings = QSettings("NextGIS", "UMD")
-    projDir = unicode(settings.value("lastProjectDir", "."))
+    projPath = QgsProject.instance().fileName()
+    cfgPath = os.path.join(QFileInfo(projPath).absolutePath(), "settings.ini")
+    if os.path.exists(cfgPath):
+      cfg = ConfigParser.SafeConfigParser()
+      cfg.read(cfgPath)
+      projDir = cfg.get("general", "projpath")
+
     script = os.path.join(os.path.abspath(projDir), "classification.pl")
 
     self.process.readyReadStandardOutput.connect(self.getStandardOutput)

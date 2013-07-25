@@ -65,7 +65,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
         self.leProjectDir.setText(projDir)
         self.leProjectData.setText(self.settings.value("lastDataDir", "."))
 
-        defaults = {"projectName":"",
+        defaults = {"projectname":"",
                     "metricspath":"",
                     "projpath":"",
                     "cpp":"C:\MinGW\bin\x86_64-w64-mingw32-g++.exe",
@@ -83,22 +83,20 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
 
         cfg = ConfigParser.SafeConfigParser(defaults)
         cfg.read(os.path.join(projDir, "settings.ini"))
-        self.leProjectName.setText(cfg.get("General", "projectName"))
-        self.leProjectData.setText(cfg.get("General", "metricspath"))
-        self.leProjectDir.setText(cfg.get("General", "projpath"))
-        self.leMinGW.setText(cfg.get("General", "cpp"))
-        self.spnTilesThreads.setValue(cfg.getint("General", "threads"))
-        self.spnTreesThreads.setValue(cfg.getint("General", "treethreads"))
-        self.spnMemory.setValue(cfg.getint("General", "memsize"))
-        self.spnSampling.setValue(cfg.getint("General", "sampling"))
-        self.spnBaggedTrees.setValue(cfg.getint("General", "maxtrees"))
-        self.spnUlx.setValue(cfg.getint("General", "ulxgrid"))
-        self.spnUly.setValue(cfg.getint("General", "ulygrid"))
-        self.spnTileSide.setValue(cfg.getint("General", "tileside"))
-        self.spnTileBuffer.setValue(cfg.getint("General", "tilebuffer"))
-        self.spnPixelSize.setValue(cfg.getint("General", "pixelsize"))
-
-        #QgsProject.instance().read(QFileInfo(os.path.join(projDir, unicode(self.leProjectName.text()))))
+        self.leProjectName.setText(cfg.get("general", "projectname"))
+        self.leProjectData.setText(cfg.get("general", "metricspath"))
+        self.leProjectDir.setText(cfg.get("general", "projpath"))
+        self.leMinGW.setText(cfg.get("general", "cpp"))
+        self.spnTilesThreads.setValue(cfg.getint("general", "threads"))
+        self.spnTreesThreads.setValue(cfg.getint("general", "treethreads"))
+        self.spnMemory.setValue(cfg.getint("general", "memsize"))
+        self.spnSampling.setValue(cfg.getint("general", "sampling"))
+        self.spnBaggedTrees.setValue(cfg.getint("general", "maxtrees"))
+        self.spnUlx.setValue(cfg.getint("general", "ulxgrid"))
+        self.spnUly.setValue(cfg.getint("general", "ulygrid"))
+        self.spnTileSide.setValue(cfg.getint("general", "tileside"))
+        self.spnTileBuffer.setValue(cfg.getint("general", "tilebuffer"))
+        self.spnPixelSize.setValue(cfg.getint("general", "pixelsize"))
 
   def reject(self):
     QDialog.reject(self)
@@ -234,24 +232,24 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
     self.settings.setValue("lastExeDir", QFileInfo(fName).absoluteDir().absolutePath())
 
   def __writeConfigFile(self, cfg, filePath):
-    if not cfg.has_section("General"):
-      cfg.add_section("General")
+    if not cfg.has_section("general"):
+      cfg.add_section("general")
 
-    cfg.set("General", "projectName", unicode(self.leProjectName.text()))
-    cfg.set("General", "projpath", unicode(QDir.toNativeSeparators(self.leProjectDir.text())))
-    cfg.set("General", "metricspath", unicode(QDir.toNativeSeparators(self.leProjectData.text())))
-    cfg.set("General", "cpp", unicode(QDir.toNativeSeparators(self.leMinGW.text())))
-    cfg.set("General", "threads", unicode(self.spnTilesThreads.value()))
-    cfg.set("General", "treethreads", unicode(self.spnTreesThreads.value()))
-    cfg.set("General", "memsize", unicode(self.spnMemory.value()))
-    cfg.set("General", "sampling", unicode(self.spnSampling.value()))
-    cfg.set("General", "maxtrees", unicode(self.spnBaggedTrees.value()))
-    cfg.set("General", "ulxgrid", unicode(self.spnUlx.value()))
-    cfg.set("General", "ulygrid", unicode(self.spnUly.value()))
-    cfg.set("General", "tileside", unicode(self.spnTileSide.value()))
-    cfg.set("General", "tilebuffer", unicode(self.spnTileBuffer.value()))
-    cfg.set("General", "pixelsize", unicode(self.spnPixelSize.value()))
-    cfg.set("General", "Ignore PF Flags", u"13,14,15,19,21,22,23,111,112")
+    cfg.set("general", "projectName", unicode(self.leProjectName.text()))
+    cfg.set("general", "projpath", unicode(QDir.toNativeSeparators(self.leProjectDir.text())))
+    cfg.set("general", "metricspath", unicode(QDir.toNativeSeparators(self.leProjectData.text())))
+    cfg.set("general", "cpp", unicode(QDir.toNativeSeparators(self.leMinGW.text())))
+    cfg.set("general", "threads", unicode(self.spnTilesThreads.value()))
+    cfg.set("general", "treethreads", unicode(self.spnTreesThreads.value()))
+    cfg.set("general", "memsize", unicode(self.spnMemory.value()))
+    cfg.set("general", "sampling", unicode(self.spnSampling.value()))
+    cfg.set("general", "maxtrees", unicode(self.spnBaggedTrees.value()))
+    cfg.set("general", "ulxgrid", unicode(self.spnUlx.value()))
+    cfg.set("general", "ulygrid", unicode(self.spnUly.value()))
+    cfg.set("general", "tileside", unicode(self.spnTileSide.value()))
+    cfg.set("general", "tilebuffer", unicode(self.spnTileBuffer.value()))
+    cfg.set("general", "pixelsize", unicode(self.spnPixelSize.value()))
+    cfg.set("general", "Ignore pf flags", u"13,14,15,19,21,22,23,111,112")
 
     with open(filePath, 'wb') as f:
       cfg.write(f)

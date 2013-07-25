@@ -27,7 +27,6 @@
 
 import os
 import ConfigParser
-import pickle
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -73,28 +72,21 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       return
 
     self.outputFile = None
-    settings = QSettings("NextGIS", "UMD")
-    projDir = unicode(settings.value("lastProjectDir", "."))
-    cfgPath = os.path.join(projDir, "settings.ini")
+
+    projPath = QgsProject.instance().fileName()
+    cfgPath = os.path.join(QFileInfo(projPath).absolutePath(), "settings.ini")
     if os.path.exists(cfgPath):
       cfg = ConfigParser.SafeConfigParser()
       cfg.read(cfgPath)
 
-      self.outputFile = os.path.join(cfg.get("General", "metricspath"), "out.vrt")
+      self.outputFile = os.path.join(cfg.get("general", "metricspath"), "out.vrt")
 
-      if not cfg.has_section("Outputs"):
-        cfg.add_section("Outputs")
-
-      cfg.set("Outputs", "maskFile", self.leMaskFile.text())
-      cfg.set("Outputs", "resultFile", self.outputFile)
-
-      if not cfg.has_section("Mask"):
-        cfg.add_section("Mask")
-
+      cfg.set("general", "maskfile", self.leMaskFile.text())
+      cfg.set("general", "resultfile", self.outputFile)
       if self.rbTarget.isChecked():
-        cfg.set("Mask", "maskclass", "1")
+        cfg.set("general", "maskclass", "1")
       else:
-        cfg.set("Mask", "maskclass", "2")
+        cfg.set("general", "maskclass", "2")
 
       with open(cfgPath, 'wb') as f:
         cfg.write(f)
