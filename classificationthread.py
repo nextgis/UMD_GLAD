@@ -83,7 +83,8 @@ class ClassificationThread(QThread):
       cfg.read(cfgPath)
       projDir = cfg.get("general", "projpath")
 
-    script = os.path.join(os.path.abspath(projDir), "classification.pl")
+    #script = os.path.join(os.path.abspath(projDir), "classification.pl")
+    script = "C:\NextGIS_QGIS\UMD\classification.pl")
 
     self.process.readyReadStandardOutput.connect(self.getStandardOutput)
 
@@ -91,7 +92,7 @@ class ClassificationThread(QThread):
     self.process.setReadChannel(QProcess.StandardOutput)
     self.process.setWorkingDirectory(projDir)
 
-    self.process.start("perl", [script], QIODevice.ReadOnly)
+    self.process.start("perl", [script, projDir], QIODevice.ReadOnly)
 
     if self.process.waitForFinished(-1):
       pass
