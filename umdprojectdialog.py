@@ -26,6 +26,7 @@
 #******************************************************************************
 
 import os
+import shutil
 import ConfigParser
 
 from PyQt4.QtCore import *
@@ -68,7 +69,7 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
         defaults = {"projectname":"",
                     "metricspath":"",
                     "projpath":"",
-                    "cpp":"C:\MinGW\bin\x86_64-w64-mingw32-g++.exe",
+                    "cpp":"C:\NextGIS_QGIS\MinGW\bin\x86_64-w64-mingw32-g++.exe",
                     "threads":"1",
                     "treethreads":"7",
                     "memsize":"900000000",
@@ -141,6 +142,11 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
 
     self.__writeConfigFile(cfg, cfgPath)
 
+    # copy style
+    sourceQml = os.path.join(os.path.join("C:/NextGIS_QGIS/UMD", "out.qml"))
+    if QFile(sourceQml).exists():
+       shitil.copyfile(sourceQml, os.path.join(unicode(self.leProjectDir.text()), "out.qml"))
+
     layers = QgsMapLayerRegistry.instance().mapLayers()
     layersFound = False
     for layerName, layer in layers.iteritems():
@@ -177,20 +183,20 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
 
   def createShapes(self, crs):
     symbol = QgsSymbolV2.defaultSymbol(QGis.Polygon)
-    symbol.setColor(Qt.red)
-    renderer = QgsSingleSymbolRendererV2(symbol)
-    fPath = QFileInfo(self.leProjectDir.text() + "/target.shp").absoluteFilePath()
-    utils.createPolygonShapeFile(fPath, crs)
-    layer = QgsVectorLayer(fPath, "target", "ogr")
-    layer.setRendererV2(renderer)
-    QgsMapLayerRegistry.instance().addMapLayers([layer])
-
-    symbol = QgsSymbolV2.defaultSymbol(QGis.Polygon)
     symbol.setColor(Qt.blue)
     renderer = QgsSingleSymbolRendererV2(symbol)
     fPath = QFileInfo(self.leProjectDir.text() + "/background.shp").absoluteFilePath()
     utils.createPolygonShapeFile(fPath, crs)
     layer = QgsVectorLayer(fPath, "background", "ogr")
+    layer.setRendererV2(renderer)
+    QgsMapLayerRegistry.instance().addMapLayers([layer])
+
+    symbol = QgsSymbolV2.defaultSymbol(QGis.Polygon)
+    symbol.setColor(Qt.red)
+    renderer = QgsSingleSymbolRendererV2(symbol)
+    fPath = QFileInfo(self.leProjectDir.text() + "/target.shp").absoluteFilePath()
+    utils.createPolygonShapeFile(fPath, crs)
+    layer = QgsVectorLayer(fPath, "target", "ogr")
     layer.setRendererV2(renderer)
     QgsMapLayerRegistry.instance().addMapLayers([layer])
 
