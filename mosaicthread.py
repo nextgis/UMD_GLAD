@@ -137,7 +137,7 @@ class MosaicThread(QThread):
     args = []
     args.append("-input_file_list")
     args.append(tmpFile.fileName())
-    for b in lstBands:
+    for b in sorted(lstBands, reverse=True):
       args.append("-b")
       args.append(b)
     args.append(self.outputFile)

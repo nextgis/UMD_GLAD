@@ -84,7 +84,7 @@ class ClassificationThread(QThread):
       projDir = cfg.get("general", "projpath")
 
     #script = os.path.join(os.path.abspath(projDir), "classification.pl")
-    script = "C:\NextGIS_QGIS\UMD\classification.pl")
+    script = "C:\NextGIS_QGIS\UMD\classification.pl"
 
     self.process.readyReadStandardOutput.connect(self.getStandardOutput)
 
