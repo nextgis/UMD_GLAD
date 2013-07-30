@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>512</width>
-    <height>549</height>
+    <height>577</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,11 +48,7 @@
        <widget class="QLineEdit" name="leProjectName"/>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="leMinGW">
-        <property name="text">
-         <string>C:\MinGW\bin\x86_64-w64-mingw32-g++.exe</string>
-        </property>
-       </widget>
+       <widget class="QLineEdit" name="leMinGW"/>
       </item>
       <item row="1" column="1">
        <widget class="QLineEdit" name="leProjectDir"/>
