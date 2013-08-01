@@ -141,7 +141,6 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.buttonBox.rejected.connect(self.reject)
     self.btnClose.clicked.disconnect(self.stopProcessing)
     self.btnClose.setText(self.tr("Close"))
-    self.btnOk.setEnabled(True)
 
   def selectDir(self):
     settings = QSettings("NextGIS", "UMD")
