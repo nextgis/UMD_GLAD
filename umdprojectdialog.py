@@ -63,41 +63,41 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
   def manageGui(self):
     projDir = unicode(self.settings.value("lastProjectDir", "."))
     if os.path.exists(os.path.join(projDir, "settings.ini")):
-        self.leProjectDir.setText(projDir)
-        self.leProjectData.setText(self.settings.value("lastDataDir", "."))
+      self.leProjectDir.setText(projDir)
+      self.leProjectData.setText(self.settings.value("lastDataDir", "."))
 
-        defaults = {"projectname":"",
-                    "metricspath":"",
-                    "projpath":"",
-                    "cpp":"C:\NextGIS_QGIS\MinGW\bin\x86_64-w64-mingw32-g++.exe",
-                    "threads":"1",
-                    "treethreads":"7",
-                    "memsize":"900000000",
-                    "sampling":"20",
-                    "maxtrees":"7",
-                    "ulxgrid":"-4560000",
-                    "ulygrid":"2400000",
-                    "tileside":"2000",
-                    "tilebuffer":"2",
-                    "pixelsize":"30"
-                   }
+      defaults = {"projectname":"",
+                  "metricspath":"",
+                  "projpath":"",
+                  "cpp":"C:\NextGIS_QGIS\MinGW\bin\x86_64-w64-mingw32-g++.exe",
+                  "threads":"1",
+                  "treethreads":"7",
+                  "memsize":"900000000",
+                  "sampling":"20",
+                  "maxtrees":"7",
+                  "ulxgrid":"-4560000",
+                  "ulygrid":"2400000",
+                  "tileside":"2000",
+                  "tilebuffer":"2",
+                  "pixelsize":"30"
+                 }
 
-        cfg = ConfigParser.SafeConfigParser(defaults)
-        cfg.read(os.path.join(projDir, "settings.ini"))
-        self.leProjectName.setText(cfg.get("general", "projectname"))
-        self.leProjectData.setText(cfg.get("general", "metricspath"))
-        self.leProjectDir.setText(cfg.get("general", "projpath"))
-        self.leMinGW.setText(cfg.get("general", "cpp"))
-        self.spnTilesThreads.setValue(cfg.getint("general", "threads"))
-        self.spnTreesThreads.setValue(cfg.getint("general", "treethreads"))
-        self.spnMemory.setValue(cfg.getint("general", "memsize"))
-        self.spnSampling.setValue(cfg.getint("general", "sampling"))
-        self.spnBaggedTrees.setValue(cfg.getint("general", "maxtrees"))
-        self.spnUlx.setValue(cfg.getint("general", "ulxgrid"))
-        self.spnUly.setValue(cfg.getint("general", "ulygrid"))
-        self.spnTileSide.setValue(cfg.getint("general", "tileside"))
-        self.spnTileBuffer.setValue(cfg.getint("general", "tilebuffer"))
-        self.spnPixelSize.setValue(cfg.getint("general", "pixelsize"))
+      cfg = ConfigParser.SafeConfigParser(defaults)
+      cfg.read(os.path.join(projDir, "settings.ini"))
+      self.leProjectName.setText(cfg.get("general", "projectname"))
+      self.leProjectData.setText(cfg.get("general", "metricspath"))
+      self.leProjectDir.setText(cfg.get("general", "projpath"))
+      self.leMinGW.setText(cfg.get("general", "cpp"))
+      self.spnTilesThreads.setValue(cfg.getint("general", "threads"))
+      self.spnTreesThreads.setValue(cfg.getint("general", "treethreads"))
+      self.spnMemory.setValue(cfg.getint("general", "memsize"))
+      self.spnSampling.setValue(cfg.getint("general", "sampling"))
+      self.spnBaggedTrees.setValue(cfg.getint("general", "maxtrees"))
+      self.spnUlx.setValue(cfg.getint("general", "ulxgrid"))
+      self.spnUly.setValue(cfg.getint("general", "ulygrid"))
+      self.spnTileSide.setValue(cfg.getint("general", "tileside"))
+      self.spnTileBuffer.setValue(cfg.getint("general", "tilebuffer"))
+      self.spnPixelSize.setValue(cfg.getint("general", "pixelsize"))
 
   def reject(self):
     QDialog.reject(self)
