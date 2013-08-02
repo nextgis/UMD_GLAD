@@ -79,7 +79,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
       cfg = ConfigParser.SafeConfigParser()
       cfg.read(cfgPath)
 
-      self.outputFile = os.path.join(cfg.get("general", "metricspath"), "out.vrt")
+      self.outputFile = os.path.join(cfg.get("general", "projpath"), "out.vrt")
 
       cfg.set("general", "maskfile", self.leMaskFile.text())
       cfg.set("general", "resultfile", self.outputFile)
