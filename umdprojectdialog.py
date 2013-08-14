@@ -148,9 +148,10 @@ class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
       shutil.copyfile(sourceQml, os.path.join(unicode(self.leProjectDir.text()), "out.qml"))
 
     # copy other stuff
-    if os.path.exists(os.path.join(unicode(self.leProjectDir.text()), "config")):
-      shutil.rmtree(os.path.join(unicode(self.leProjectDir.text()), "config"))
-      shutil.copytree("C:/NextGIS_QGIS/UMD/config", unicode(self.leProjectDir.text()))
+    tmp = os.path.join(unicode(self.leProjectDir.text()), "config")
+    if os.path.exists(tmp):
+      shutil.rmtree(tmp)
+    shutil.copytree("C:/NextGIS_QGIS/UMD/config", tmp)
 
     layers = QgsMapLayerRegistry.instance().mapLayers()
     layersFound = False
