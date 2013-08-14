@@ -8,7 +8,7 @@ qgisMinimumVersion=2.0
 author=NextGIS
 email=info@nextgis.org
 
-icon=icons/umd.png
+icon=icons/new.png
 
 tags=raster,analysis,land cover
 

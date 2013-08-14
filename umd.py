@@ -77,7 +77,7 @@ class UmdPlugin:
       return None
 
     self.actionNew = QAction(QCoreApplication.translate("UMD", "Create new project"), self.iface.mainWindow())
-    self.actionNew.setIcon(QIcon(":/icons/umd.png"))
+    self.actionNew.setIcon(QIcon(":/icons/new.png"))
     self.actionNew.setWhatsThis("Create new or edit current UMD project")
 
     self.actionMosaic = QAction(QCoreApplication.translate("UMD", "Create mosaic"), self.iface.mainWindow())
@@ -85,7 +85,7 @@ class UmdPlugin:
     self.actionMosaic.setWhatsThis("Create mosaic from tiles")
 
     self.actionClassification = QAction(QCoreApplication.translate("UMD", "Run classification"), self.iface.mainWindow())
-    self.actionClassification.setIcon(QIcon(":/icons/classification.png"))
+    self.actionClassification.setIcon(QIcon(":/icons/classify.png"))
     self.actionClassification.setWhatsThis("Run classification process")
 
     self.actionAbout = QAction(QCoreApplication.translate("UMD", "About UMD..."), self.iface.mainWindow())
@@ -102,6 +102,7 @@ class UmdPlugin:
     self.toolBar.addAction(self.actionNew)
     self.toolBar.addAction(self.actionMosaic)
     self.toolBar.addAction(self.actionClassification)
+    self.toolBar.addAction(self.actionAbout)
 
     self.actionNew.triggered.connect(self.newProject)
     self.actionMosaic.triggered.connect(self.createMosaic)
