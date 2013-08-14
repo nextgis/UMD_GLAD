@@ -1,6 +1,6 @@
 [general]
 name=UMD
-description=Classification environment for UMD
+description=Landsat time-sequential metric visualization and classification
 category=Plugins
 version=0.0.1
 qgisMinimumVersion=2.0
@@ -10,7 +10,7 @@ email=info@nextgis.org
 
 icon=icons/new.png
 
-tags=raster,analysis,land cover
+tags=raster,analysis,land cover,landsat
 
 homepage=
 tracker=

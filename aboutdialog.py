@@ -2,11 +2,11 @@
 
 #******************************************************************************
 #
-# QTiles
+# UMD
 # ---------------------------------------------------------
-# Generates tiles from QGIS project
+# Classification for UMD
 #
-# Copyright (C) 2012 Alexander Bruy (alexander.bruy@gmail.com)
+# Copyright (C) 2013 NextGIS (info@nextgis.org)
 #
 # This source is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free
@@ -46,7 +46,7 @@ class AboutDialog(QDialog, Ui_Dialog):
     cfg.read(os.path.join(os.path.dirname(__file__), "metadata.txt"))
     version = cfg.get("general", "version")
 
-    self.lblLogo.setPixmap(QPixmap(":/icons/umd.png"))
+    self.lblLogo.setPixmap(QPixmap(":/icons/new.png"))
     self.lblVersion.setText(self.tr("Version: %s") % (version))
     doc = QTextDocument()
     doc.setHtml(self.getAboutText())
@@ -59,23 +59,34 @@ class AboutDialog(QDialog, Ui_Dialog):
     QDialog.reject(self)
 
   def openHelp(self):
-    #~ overrideLocale = QSettings().value("locale/overrideFlag", False)
-    #~ if not overrideLocale:
-      #~ localeFullName = QLocale.system().name()
-    #~ else:
-      #~ localeFullName = QSettings().value("locale/userLocale", "")
-#~
-    #~ localeShortName = localeFullName[ 0:2 ]
-    #~ if localeShortName in [ "ru", "uk" ]:
-      #~ QDesktopServices.openUrl(QUrl("http://hub.qgis.org/projects/geotagphotos/wiki"))
-    #~ else:
-      #~ QDesktopServices.openUrl(QUrl("http://hub.qgis.org/projects/geotagphotos/wiki"))
-    pass
+      QDesktopServices.openUrl(QUrl("http://glad.geog.umd.edu/qgis"))
 
   def getAboutText(self):
-    return self.tr("""<p>Classification for UMD</p>
-<p>Integrates UMD classification algorithms in QGIS.</p>
-<p><strong>Developers</strong>: <a href="http://nextgis.org">NextGIS</a></p>
-<p><strong>Homepage</strong>: <a href="http://hub.qgis.org/projects/qtiles">http://hub.qgis.org/projects/umd</a></p>
-<p>Please report bugs at <a href="http://hub.qgis.org/projects/umd/issues">bugtracker</a></p>
-""")
+      return self.tr(
+      """
+      <p>The Landsat time-sequential metric visualization and classification
+      module was developed by the Global Land Analysis & Discovery (GLAD) team
+      at the University of Maryland, College Park, USA and the NEXTGIS R&amp;D
+      Company, Moscow, Russia. This module is designed to work with tiled
+      Landsat composite data produced by the GLAD team.</p>
+      <p>The classification module is built on the basis of open source tools:
+      Minimalist GNU for Windows (licensed by GNU General Public License);
+      Geospatial Data Abstraction Library (licensed by Open Source Geospatial
+      Foundation); Classification and Regression Trees (author: Brian Ripley).
+      The visualization and classification module is distributed by
+      <a href="http://glad.geog.umd.edu/">glad.geog.umd.edu</a>. You are free to
+      use, modify and copy this package as long as you credit the code source.
+      The module is distributed without warranty of any kind.</p>
+      <p>Suggested reference: "The Landsat time-sequential metric visualization
+      and classification tool for QGIS developed by the Global Land Analysis
+      &amp; Discovery (GLAD) team at the University of Maryland and the NEXTGIS
+      R&amp;D Company and available from
+      <a href="http://glad.geog.umd.edu/qgis">http://glad.geog.umd.edu/qgis</a>".</p>
+      <p>Product developers: Alexander Bruy; Dmitry Baryshnikov; Maxim Dubinin;
+      Junchang Ju; Alexander Krylov; Matthew Hansen; Peter Potapov.</p>
+      <p>For updates, manuals and tutorials please visit
+      <a href="http://glad.geog.umd.edu/qgis">http://glad.geog.umd.edu/qgis</a>.</p>
+      <p>For Landsat time-sequential metric data sets visit
+      <a href="http://glad.geog.umd.edu/data">http://glad.geog.umd.edu/data</a>.</p>
+      """
+      )
