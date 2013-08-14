@@ -1,5 +1,5 @@
 [general]
-name=UMD
+name=UMD GLAD classifier
 description=Landsat time-sequential metric visualization and classification
 category=Plugins
 version=0.0.1

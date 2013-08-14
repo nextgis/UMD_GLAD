@@ -2,9 +2,9 @@
 
 #******************************************************************************
 #
-# UMD
+# UMD GLAD classifier
 # ---------------------------------------------------------
-# Classification for UMD
+# Landsat time-sequential metric visualization and classification
 #
 # Copyright (C) 2013 NextGIS (info@nextgis.org)
 #
@@ -88,16 +88,16 @@ class UmdPlugin:
     self.actionClassification.setIcon(QIcon(":/icons/classify.png"))
     self.actionClassification.setWhatsThis("Run classification process")
 
-    self.actionAbout = QAction(QCoreApplication.translate("UMD", "About UMD..."), self.iface.mainWindow())
+    self.actionAbout = QAction(QCoreApplication.translate("UMD", "About UMD GLAD classifier..."), self.iface.mainWindow())
     self.actionAbout.setIcon(QIcon(":/icons/about.png"))
-    self.actionAbout.setWhatsThis("About UMD")
+    self.actionAbout.setWhatsThis("About UMD GLAD classifier")
 
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionNew)
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionMosaic)
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionClassification)
     self.iface.addPluginToMenu(QCoreApplication.translate("UMD", "UMD"), self.actionAbout)
 
-    self.toolBar = self.iface.addToolBar(QCoreApplication.translate("UMD", "UMD tools"))
+    self.toolBar = self.iface.addToolBar(QCoreApplication.translate("UMD", "UMD GLAD tools"))
     self.toolBar.setObjectName("UMD tools")
     self.toolBar.addAction(self.actionNew)
     self.toolBar.addAction(self.actionMosaic)

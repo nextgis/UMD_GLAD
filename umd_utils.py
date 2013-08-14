@@ -2,9 +2,9 @@
 
 #******************************************************************************
 #
-# UMD
+# UMD GLAD classifier
 # ---------------------------------------------------------
-# Classification for UMD
+# Landsat time-sequential metric visualization and classification
 #
 # Copyright (C) 2013 NextGIS (info@nextgis.org)
 #
