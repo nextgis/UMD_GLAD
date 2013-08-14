@@ -112,7 +112,7 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.workThread.start()
 
   def updateMessages(self, message):
-    self.edLog.appendPlainText(message)
+    self.edLog.insertPlainText(message)
 
   def processFinished(self):
     self.stopProcessing()
