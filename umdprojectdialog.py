@@ -34,7 +34,7 @@ from PyQt4.QtGui import *
 
 from qgis.core import *
 
-from ui_umdprojectdialogbase import Ui_UmdProjectDialog
+from ui.ui_umdprojectdialogbase import Ui_UmdProjectDialog
 
 import umd_utils as utils
 

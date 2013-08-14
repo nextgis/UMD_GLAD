@@ -36,7 +36,7 @@ from qgis.core import *
 
 import mosaicthread
 
-from ui_umdmosaicdialogbase import Ui_Dialog
+from ui.ui_umdmosaicdialogbase import Ui_Dialog
 
 class UmdMosaicDialog(QDialog, Ui_Dialog):
   def __init__(self, plugin):

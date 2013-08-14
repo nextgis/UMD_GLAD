@@ -37,7 +37,7 @@ from qgis.core import *
 import classificationthread
 import umd_utils as utils
 
-from ui_umdclassificationdialogbase import Ui_Dialog
+from ui.ui_umdclassificationdialogbase import Ui_Dialog
 
 class UmdClassificationDialog(QDialog, Ui_Dialog):
   def __init__(self, plugin):

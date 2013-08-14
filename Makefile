@@ -1,4 +1,4 @@
-UI_PATH=.
+UI_PATH=ui
 UI_SOURCES=$(wildcard $(UI_PATH)/*.ui)
 UI_FILES=$(patsubst $(UI_PATH)/%.ui, $(UI_PATH)/ui_%.py, $(UI_SOURCES))
 
@@ -37,11 +37,11 @@ $(RES_FILES): $(RES_PATH)/%_rc.py: $(RES_PATH)/%.qrc
 
 clean:
 	rm -f $(ALL_FILES)
-	rm -f *.pyc
+	find -name "*.pyc" -exec rm -f {} \;
 	rm -f *.zip
 
 package:
-	cd .. && rm -f *.zip && zip -r umd.zip umd -x \*.pyc \*.ts \*.ui \*.qrc \*.pro \*~ \*.git\* \*Makefile*
+	cd .. && rm -f *.zip && zip -r umd.zip umd -x \*.pyc \*.ui \*.qrc \*.pro \*~ \*.git\* \*Makefile*
 	mv ../umd.zip .
 
 upload:
