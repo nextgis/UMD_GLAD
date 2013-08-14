@@ -104,6 +104,8 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.buttonBox.rejected.disconnect(self.reject)
     self.btnClose.clicked.connect(self.stopProcessing)
 
+    self.edLog.setTextInteractionFlags(Qt.NoTextInteraction)
+
     # if classification result already there — unload it
     layer = utils.getRasterLayerByName(QFileInfo(self.outputFile).baseName())
     if layer is not None:
@@ -141,6 +143,8 @@ class UmdClassificationDialog(QDialog, Ui_Dialog):
     self.buttonBox.rejected.connect(self.reject)
     self.btnClose.clicked.disconnect(self.stopProcessing)
     self.btnClose.setText(self.tr("Close"))
+
+    self.edLog.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
   def selectDir(self):
     settings = QSettings("NextGIS", "UMD")
