@@ -16,10 +16,11 @@ and classification module is distributed by glad.geog.umd.edu. You are free to
 use, modify and copy this package as long as you credit the code source. The
 module is distributed without warranty of any kind.
 
-Suggested reference: "The Landsat time-sequential metric visualization and
+Suggested reference: 
+The Landsat time-sequential metric visualization and
 classification tool for Quantum GIS developed by the Global Land Analysis &
-Discovery (GLAD) team at the University of Maryland and the NEXTGIS R&D Company
-and available from http://glad.geog.umd.edu/qgis".
+Discovery (GLAD) team at the University of Maryland and the NextGIS (http://nextgis.org). 
+Available at: http://glad.geog.umd.edu/qgis
 
 Product developers: Alexander Bruy; Dmitry Baryshnikov; Maxim Dubinin; Junchang
 Ju; Alexander Krylov; Matthew Hansen; Peter Potapov.
