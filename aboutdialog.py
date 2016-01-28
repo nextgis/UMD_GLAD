@@ -6,7 +6,7 @@
 # ---------------------------------------------------------
 # Landsat time-sequential metric visualization and classification
 #
-# Copyright (C) 2013 NextGIS (info@nextgis.org)
+# Copyright (C) 2013-2016 NextGIS (info@nextgis.com)
 #
 # This source is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free
@@ -28,16 +28,17 @@
 import os
 import ConfigParser
 
+from PyQt4 import uic
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
-from ui.ui_aboutdialogbase import Ui_Dialog
+FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'ui/aboutdialogbase.ui'))
 
 import resources_rc
 
-class AboutDialog(QDialog, Ui_Dialog):
-  def __init__(self):
-    QDialog.__init__(self)
+class AboutDialog(QDialog, FORM_CLASS):
+  def __init__(self, parent=None):
+    super(AboutDialog, self).__init__(parent)
     self.setupUi(self)
 
     self.btnHelp = self.buttonBox.button(QDialogButtonBox.Help)

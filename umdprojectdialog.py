@@ -6,7 +6,7 @@
 # ---------------------------------------------------------
 # Landsat time-sequential metric visualization and classification
 #
-# Copyright (C) 2013 NextGIS (info@nextgis.org)
+# Copyright (C) 2013-2016 NextGIS (info@nextgis.com)
 #
 # This source is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free
@@ -29,18 +29,19 @@ import os
 import shutil
 import ConfigParser
 
+from PyQt4 import uic
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 from qgis.core import *
 
-from ui.ui_umdprojectdialogbase import Ui_UmdProjectDialog
+FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'ui/umdprojectdialogbase.ui'))
 
 import umd_utils as utils
 
-class UmdProjectDialog(QDialog, Ui_UmdProjectDialog):
-  def __init__(self, plugin):
-    QDialog.__init__(self)
+class UmdProjectDialog(QDialog, FORM_CLASS):
+  def __init__(self, plugin, parent=None):
+    super(UmdProjectDialog, self).__init__(parent)
     self.setupUi(self)
 
     self.plugin = plugin

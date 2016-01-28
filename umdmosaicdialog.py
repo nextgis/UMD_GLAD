@@ -6,7 +6,7 @@
 # ---------------------------------------------------------
 # Landsat time-sequential metric visualization and classification
 #
-# Copyright (C) 2013 NextGIS (info@nextgis.org)
+# Copyright (C) 2013-2016 NextGIS (info@nextgis.com)
 #
 # This source is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free
@@ -28,6 +28,7 @@
 import os
 import ConfigParser
 
+from PyQt4 import uic
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtXml import *
@@ -36,11 +37,11 @@ from qgis.core import *
 
 import mosaicthread
 
-from ui.ui_umdmosaicdialogbase import Ui_Dialog
+FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'ui/umdmosaicdialogbase.ui'))
 
-class UmdMosaicDialog(QDialog, Ui_Dialog):
-  def __init__(self, plugin):
-    QDialog.__init__(self)
+class UmdMosaicDialog(QDialog, FORM_CLASS):
+  def __init__(self, plugin, parent=None):
+    super(UmdMosaicDialog, self).__init__(parent)
     self.setupUi(self)
 
     self.plugin = plugin
@@ -67,8 +68,14 @@ class UmdMosaicDialog(QDialog, Ui_Dialog):
       cfg = ConfigParser.SafeConfigParser()
       cfg.read(cfgPath)
       dataDir = cfg.get("general", "metricspath")
-
-    self.loadMetrics(unicode(dataDir))
+      self.loadMetrics(unicode(dataDir))
+    else:
+      QMessageBox.warning(self,
+                              self.tr("Load error"),
+                              self.tr("Cannot read mosaic files. Create new project first.")
+                            )
+      return
+    
     self.filterModel.sort(0)
 
   def loadMetrics(self, directory):

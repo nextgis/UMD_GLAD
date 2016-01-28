@@ -6,7 +6,7 @@
 # ---------------------------------------------------------
 # Landsat time-sequential metric visualization and classification
 #
-# Copyright (C) 2013 NextGIS (info@nextgis.org)
+# Copyright (C) 2013-2016 NextGIS (info@nextgis.com)
 #
 # This source is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free
