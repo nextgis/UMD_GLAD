@@ -25,6 +25,10 @@ Available at: http://glad.geog.umd.edu/qgis
 Product developers: Alexander Bruy; Dmitry Baryshnikov; Maxim Dubinin; Junchang
 Ju; Alexander Krylov; Matthew Hansen; Peter Potapov.
 
+License
+-------------
+This program is licensed under GNU GPL v2 or any later version
+
 Commercial support
 ----------
 Need to fix a bug or add a feature to UMD GLAD for QGIS? We provide custom development and support for this software. [Contact us](http://nextgis.ru/en/contact/) to discuss options!
